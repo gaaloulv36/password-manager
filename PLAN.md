@@ -58,12 +58,15 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
   - everything taken from the other copy is authenticated first; different `VaultId` is refused
   - edit timestamps never go backwards, even if this PC's clock is behind
 
-### Phase 2 — Desktop MVP (first daily-usable version)
-- [ ] Create vault / unlock screen
-- [ ] Item list + instant search, detail/edit view
-- [ ] Copy username/password; clear clipboard after 30s; exclude from Win+V history (`ExcludeClipboardContentFromMonitorProcessing`)
-- [ ] Auto-lock on idle, on Windows lock (`SessionSwitch`), on minimize (configurable)
-- [ ] Generator dialog
+### Phase 2 — Desktop MVP (first daily-usable version) — in progress
+- [x] Create vault (strength meter, no-recovery acknowledgement, OneDrive suggested) / unlock screen (remembers last vault)
+- [x] Item list + instant search (title, username, websites, notes), detail/edit view, delete with confirmation
+- [x] Live 2FA codes with countdown
+- [x] Copy username/password/2FA code; clear clipboard after 30s; excluded from Win+V history and cloud clipboard
+- [x] Save = merge with file on disk first (`VaultFileStore.SaveMerged`), so another PC's changes are never overwritten
+- [x] Auto-lock on system idle (5 min), Windows lock, sleep
+- [ ] Auto-lock on minimize (optional setting) + settings page
+- [x] Generator dialog (password + passphrase)
 - [ ] Tray icon + global hotkey to open search
 - [ ] Import: Chrome/Edge CSV, Bitwarden JSON, KeePass CSV. Export: encrypted backup
 

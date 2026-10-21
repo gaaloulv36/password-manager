@@ -17,6 +17,17 @@ public static class VaultFileStore
         return document;
     }
 
+    /// <summary>
+    /// Saves the vault without losing changes another PC made to the file since it was opened:
+    /// the current file is merged in first. Returns what the merge brought in, or null for a new file.
+    /// </summary>
+    public static MergeResult? SaveMerged(UnlockedVault vault, string path)
+    {
+        var result = File.Exists(path) ? vault.Merge(Load(path)) : null;
+        Save(vault.Document, path);
+        return result;
+    }
+
     /// <summary>Writes to a temp file first, then swaps it in, so a crash never leaves a half-written vault.</summary>
     public static void Save(VaultDocument document, string path)
     {
