@@ -82,11 +82,18 @@ public partial class App : Application
     /// <summary>The browser link's window to the UI.</summary>
     private sealed class BrowserUi(App app) : IBrowserUi
     {
+        private PairingWindow? _open;
+
         public void ShowApp() => app.ShowMainWindow();
 
+        /// <summary>One prompt at a time: anything else asking to pair meanwhile is rejected, not stacked up.</summary>
         public Task<bool> ConfirmPairingAsync(string browserName, string code)
         {
+            if (_open is not null) return Task.FromResult(false);
+
             var window = new PairingWindow(browserName, code);
+            _open = window;
+            window.Closed += (_, _) => _open = null;
             window.Show();
             window.Activate();
             return window.Decision;

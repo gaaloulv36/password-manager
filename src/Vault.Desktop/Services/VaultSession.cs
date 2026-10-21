@@ -7,6 +7,9 @@ using Vault.Core.Storage;
 
 namespace Vault.Desktop.Services;
 
+/// <summary>Windows Hello's key no longer opens the stored vault key (e.g. after a PIN reset).</summary>
+public sealed class HelloKeyChangedException(Exception inner) : Exception("Windows Hello data no longer matches.", inner);
+
 /// <summary>Why a change on disk wasn't merged; <paramref name="CanOverwrite"/> when replacing the file with the open vault is safe.</summary>
 public sealed record SyncFailure(string Message, bool CanOverwrite);
 
@@ -83,7 +86,8 @@ public sealed class VaultSession
         }
     }
 
-    /// <exception cref="CryptographicException">The stored Hello data no longer fits this vault; Hello has been turned off.</exception>
+    /// <exception cref="HelloKeyChangedException">The stored Hello data no longer fits; Hello has been turned off.</exception>
+    /// <exception cref="CryptographicException">The vault file itself is damaged or tampered with.</exception>
     public async Task<HelloOutcome> UnlockWithHelloAsync(string path)
     {
         var document = VaultFileStore.Load(path);
@@ -94,14 +98,16 @@ public sealed class VaultSession
             try
             {
                 (outcome, vaultKey) = await Hello.UnlockAsync(document.VaultId);
-                if (vaultKey is null) return outcome;
-                Open(path, UnlockedVault.UnlockWithVaultKey(document, vaultKey));
             }
-            catch (CryptographicException)
+            catch (CryptographicException ex)
             {
+                // Only an unwrap failure means Hello is broken (e.g. PIN reset). A damaged vault file fails below instead.
                 await Hello.DisableAsync(document.VaultId);
-                throw;
+                throw new HelloKeyChangedException(ex);
             }
+            if (vaultKey is null) return outcome;
+
+            Open(path, UnlockedVault.UnlockWithVaultKey(document, vaultKey));
             BackUpDaily(path);
             return HelloOutcome.Success;
         }

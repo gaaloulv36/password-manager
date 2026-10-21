@@ -63,6 +63,7 @@ public sealed class UnlockedVault : IDisposable
         try
         {
             vault.VerifyHeader(document);
+            vault.VerifyAllItems();
             return vault;
         }
         catch
@@ -81,6 +82,7 @@ public sealed class UnlockedVault : IDisposable
         try
         {
             vault.VerifyHeader(document);
+            vault.VerifyAllItems();
             return vault;
         }
         catch
@@ -216,6 +218,16 @@ public sealed class UnlockedVault : IDisposable
     /// </summary>
     private static byte[] ItemAad(Guid id, long revision, DateTimeOffset updatedAt, bool isDeleted) =>
         Encoding.UTF8.GetBytes($"pm:item:v1:{id:N}:{revision}:{updatedAt.UtcTicks}:{(isDeleted ? 1 : 0)}");
+
+    /// <summary>
+    /// Authenticates every entry (tombstones included) up front, so a tampered file fails to unlock as a
+    /// whole instead of unlocking and then failing on first use.
+    /// </summary>
+    private void VerifyAllItems()
+    {
+        foreach (var item in Document.Items)
+            CryptographicOperations.ZeroMemory(Open(item));
+    }
 
     private void VerifyHeader(VaultDocument document)
     {

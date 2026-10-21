@@ -98,7 +98,7 @@ public sealed partial class UnlockViewModel : ObservableObject
         {
             Error = "The vault file can't be found. It may have been moved or deleted.";
         }
-        catch (CryptographicException) when (CanUseHello && Password.Length == 0)
+        catch (HelloKeyChangedException)
         {
             CanUseHello = false;
             Error = "Windows Hello unlock stopped working (for example after resetting your PIN) and was turned off. " +

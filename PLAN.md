@@ -112,6 +112,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 ### Phase 5 — Hardening & extras (remaining)
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)
 - [ ] Have I Been Pwned check (k-anonymity API) + weak/reused password report
+- [x] Security review 1 (2026-10-22): 7 findings fixed, see SECURITY.md
 - [ ] Vault parser fuzzing; external review of `Vault.Core`
 - [ ] Installer (MSIX or Velopack) + code signing
 

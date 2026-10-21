@@ -57,7 +57,16 @@ public static class VaultSync
             }
             if (document.VaultId != vault.Document.VaultId) continue;
 
-            Absorb(vault.Merge(document));
+            try
+            {
+                Absorb(vault.Merge(document));
+            }
+            catch (System.Security.Cryptography.CryptographicException)
+            {
+                // Claims to be this vault but doesn't authenticate: set it aside so it can't block every future sync.
+                Archive(copy, Path.Combine(archiveDirectory, "Rejected"), "rejected");
+                continue;
+            }
             merged.Add(copy);
             needsWrite = true;
         }
@@ -65,15 +74,16 @@ public static class VaultSync
         if (needsWrite) VaultFileStore.Save(vault.Document, path);
 
         // Only archive once their content is safely in the main file.
-        foreach (var copy in merged)
-        {
-            Directory.CreateDirectory(archiveDirectory);
-            var target = Path.Combine(archiveDirectory,
-                $"{Path.GetFileNameWithoutExtension(copy)} (merged {DateTime.Now:yyyy-MM-dd HHmmss}).pmvault");
-            File.Move(copy, target, overwrite: true);
-        }
+        foreach (var copy in merged) Archive(copy, archiveDirectory, "merged");
 
         return new SyncResult(added, updated, deleted, passwordChanged, merged);
+    }
+
+    private static void Archive(string file, string directory, string label)
+    {
+        Directory.CreateDirectory(directory);
+        var target = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(file)} ({label} {DateTime.Now:yyyy-MM-dd HHmmss}).pmvault");
+        File.Move(file, target, overwrite: true);
     }
 
     /// <summary>

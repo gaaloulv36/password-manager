@@ -58,9 +58,12 @@
     input.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  const firstVisiblePassword = () => [...document.querySelectorAll('input[type=password]')].find((p) => isVisible(p) && isPassword(p)) ?? null;
+
   function fill(credential, field) {
-    const target = field && document.contains(field) ? field : document.querySelector('input[type=password]') ?? lastFocused;
-    if (!target) return;
+    const target = field && document.contains(field) ? field : firstVisiblePassword() ?? lastFocused;
+    // Never fill invisible fields: some pages hide inputs to harvest whatever a password manager drops in.
+    if (!target || !isVisible(target)) return;
     const { username, password } = loginFieldsFor(target);
     setValue(username, credential.username);
     setValue(password, credential.password);
@@ -68,6 +71,11 @@
   }
 
   // ---- Inline UI (closed shadow root so the page can't restyle or script it) -------------------
+
+  /** Our buttons only react to real user input, never to clicks synthesized by page scripts. */
+  const trusted = (handler) => (event) => {
+    if (event.isTrusted) handler(event);
+  };
 
   const host = document.createElement('password-manager-ui');
   host.style.cssText = 'all: initial; position: absolute; top: 0; left: 0; z-index: 2147483647;';
@@ -139,7 +147,7 @@
       const button = document.createElement('button');
       button.className = 'item';
       button.textContent = action.label;
-      button.addEventListener('click', action.run);
+      button.addEventListener('click', trusted(action.run));
       menu.append(button);
     }
   }
@@ -175,21 +183,21 @@
       const title = Object.assign(document.createElement('div'), { className: 'title', textContent: login.title });
       const sub = Object.assign(document.createElement('div'), { className: 'sub', textContent: login.username ?? '(no username)' });
       button.append(title, sub);
-      button.addEventListener('click', async () => {
+      button.addEventListener('click', trusted(async () => {
         hideMenu();
         try {
           fill(await call('fill-from-page', { itemId: login.itemId }), field);
         } catch {
           /* vault locked meanwhile, or entry no longer matches */
         }
-      });
+      }));
       menu.append(button);
     }
     menu.querySelector('button')?.focus();
   }
 
   icon.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus in the field
-  icon.addEventListener('click', () => activeField && openMenu(activeField));
+  icon.addEventListener('click', trusted(() => activeField && openMenu(activeField)));
 
   document.addEventListener('focusin', (e) => {
     const target = e.composedPath()[0];
@@ -239,7 +247,7 @@
     for (const [label, value, primary] of [['Never for this site', 'never'], ['Not now', 'dismiss'], [prompt.kind === 'changed' ? 'Update' : 'Save', 'save', true]]) {
       const button = Object.assign(document.createElement('button'), { textContent: label, type: 'button' });
       if (primary) button.className = 'primary';
-      button.addEventListener('click', answer(value));
+      button.addEventListener('click', trusted(answer(value)));
       actions.append(button);
     }
     banner.append(text, actions);
@@ -272,9 +280,9 @@
 
   api.runtime.onMessage.addListener((message) => {
     if (message.cmd === 'show-save-prompt' && isTopFrame) showBanner(message.prompt);
-    if (message.cmd === 'fill') fill(message.credential, lastFocused);
+    if (message.cmd === 'fill' && message.url && new URL(message.url).origin === location.origin) fill(message.credential, lastFocused);
     if (message.cmd === 'shortcut-fill') {
-      const field = lastFocused ?? document.querySelector('input[type=password]');
+      const field = lastFocused ?? firstVisiblePassword();
       if (!field) return;
       call('get-logins').then(({ logins }) => {
         if (logins.length === 1) call('fill-from-page', { itemId: logins[0].itemId }).then((c) => fill(c, field));

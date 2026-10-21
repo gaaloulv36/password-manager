@@ -194,7 +194,8 @@ async function handle(message, sender) {
     case 'fill-from-popup': { // popup: fetch for the active tab's top frame and hand to its content script
       const tab = await activeTab();
       const credential = await request('get-credential', { url: tab.url, itemId: message.itemId });
-      await api.tabs.sendMessage(tab.id, { cmd: 'fill', credential }, { frameId: 0 });
+      // The tab may have navigated meanwhile: the page only fills if it's still on the site the login was released for.
+      await api.tabs.sendMessage(tab.id, { cmd: 'fill', credential, url: tab.url }, { frameId: 0 });
       return { filled: true };
     }
 
