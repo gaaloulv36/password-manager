@@ -38,6 +38,27 @@
                 </StackPanel>
             </Border>
 
+            <!-- Windows Hello -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Windows Hello" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Hint}"
+                               Text="Unlock with your face, fingerprint or PIN on this PC. Your master password keeps working, and is still needed on other PCs." />
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0"
+                               Text="Windows Hello isn't set up on this PC. Set it up in Windows Settings → Accounts → Sign-in options, then reopen Settings."
+                               Visibility="{Binding IsHelloAvailable, Converter={StaticResource InverseBoolToVisibility}}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                Visibility="{Binding IsHelloAvailable, Converter={StaticResource BoolToVisibility}}">
+                        <Button Content="Turn on Windows Hello" Command="{Binding EnableHelloCommand}" Padding="16,6"
+                                Visibility="{Binding IsHelloEnabled, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <Button Content="Turn off Windows Hello" Command="{Binding DisableHelloCommand}" Padding="16,6"
+                                Visibility="{Binding IsHelloEnabled, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding HelloMessage}" Style="{StaticResource Hint}"
+                               Visibility="{Binding HelloMessage, Converter={StaticResource VisibleWhenSet}}" />
+                </StackPanel>
+            </Border>
+
             <!-- Master password -->
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                 <StackPanel>

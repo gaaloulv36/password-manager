@@ -13,6 +13,8 @@
   <ItemGroup>
     <!-- EFF large wordlist (CC BY 3.0): https://www.eff.org/dice -->
     <EmbeddedResource Include="Generators\Resources\eff_large_wordlist.txt" LogicalName="Vault.Core.EffWordlist" />
+    <!-- 10k most common passwords, SecLists (MIT): https://github.com/danielmiessler/SecLists -->
+    <EmbeddedResource Include="Generators\Resources\common-passwords.txt" LogicalName="Vault.Core.CommonPasswords" />
   </ItemGroup>
 
 </Project>

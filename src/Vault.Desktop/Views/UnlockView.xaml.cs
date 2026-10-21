@@ -12,7 +12,12 @@ public partial class UnlockView : UserControl, IHasPrimaryInput
         Loaded += (_, _) => FocusPrimaryInput();
     }
 
-    public void FocusPrimaryInput() => PasswordInput.Focus();
+    /// <summary>With Windows Hello on, Space/Enter on the focused Hello button is the quickest way in.</summary>
+    public void FocusPrimaryInput()
+    {
+        if (((UnlockViewModel)DataContext).CanUseHello) HelloButton.Focus();
+        else PasswordInput.Focus();
+    }
 
     // PasswordBox.Password isn't bindable (by design), so pass it on by hand.
     private void OnPasswordChanged(object sender, RoutedEventArgs e) =>

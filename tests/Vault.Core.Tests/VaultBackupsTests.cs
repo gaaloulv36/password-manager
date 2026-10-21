@@ -42,6 +42,30 @@ public sealed class VaultBackupsTests : IDisposable
     }
 
     [Fact]
+    public void Restore_ReplacesVaultAndKeepsTheOldFile()
+    {
+        using var vault = UnlockedVault.Create("pw", new Vault.Core.Crypto.KdfParameters(new byte[16], 1024, 1, 1));
+        var backup = Path.Combine(_dir, "good.pmvault");
+        VaultFileStore.Save(vault.Document, backup);
+        var damaged = Path.Combine(_dir, "Damaged");
+
+        VaultBackups.Restore(backup, _vault, damaged);
+
+        Assert.Equal(File.ReadAllText(backup), File.ReadAllText(_vault));
+        Assert.Equal("v1", File.ReadAllText(Assert.Single(Directory.GetFiles(damaged))));
+    }
+
+    [Fact]
+    public void Restore_RefusesSomethingThatIsNotAVault()
+    {
+        var notAVault = Path.Combine(_dir, "notes.pmvault");
+        File.WriteAllText(notAVault, "{ \"hello\": 1 }");
+
+        Assert.ThrowsAny<Exception>(() => VaultBackups.Restore(notAVault, _vault, Path.Combine(_dir, "Damaged")));
+        Assert.Equal("v1", File.ReadAllText(_vault));
+    }
+
+    [Fact]
     public void PruningLeavesOtherVaultsAlone()
     {
         var other = Path.Combine(_dir, "Work.pmvault");

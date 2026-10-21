@@ -11,7 +11,10 @@ public partial class SettingsWindow : Window
         DataContextChanged += (_, e) =>
         {
             if (e.NewValue is SettingsViewModel viewModel)
+            {
                 viewModel.PasswordFieldsCleared += (_, _) => ClearPasswordFields();
+                _ = viewModel.LoadHelloStateAsync();
+            }
         };
     }
 

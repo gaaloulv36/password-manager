@@ -219,9 +219,8 @@
     const key = `${username?.value}\u0000${password.value}`;
     if (key === lastCapture) return;
     lastCapture = key;
-    call('login-captured', { username: username?.value ?? '', password: password.value })
-      .then((prompt) => prompt && showBanner(prompt))
-      .catch(() => {});
+    // The background shows the prompt in the top-level page (this may be an iframe).
+    call('login-captured', { username: username?.value ?? '', password: password.value }).catch(() => {});
   }
 
   function showBanner(prompt) {
@@ -265,12 +264,14 @@
     if (e.key === 'Enter' && isPassword(e.target)) capture(e.target.form);
   }, true);
 
-  // A prompt captured just before the page navigated is shown on the next page.
-  call('pending-save').then((prompt) => prompt && showBanner(prompt)).catch(() => {});
+  // A prompt captured just before the page navigated is shown on the next page (top-level page only).
+  const isTopFrame = window === window.top;
+  if (isTopFrame) call('pending-save').then((prompt) => prompt && showBanner(prompt)).catch(() => {});
 
   // ---- Messages from the background ------------------------------------------------------------
 
   api.runtime.onMessage.addListener((message) => {
+    if (message.cmd === 'show-save-prompt' && isTopFrame) showBanner(message.prompt);
     if (message.cmd === 'fill') fill(message.credential, lastFocused);
     if (message.cmd === 'shortcut-fill') {
       const field = lastFocused ?? document.querySelector('input[type=password]');

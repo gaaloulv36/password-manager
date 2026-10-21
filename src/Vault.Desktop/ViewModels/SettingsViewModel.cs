@@ -132,6 +132,49 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
+    // ---- Windows Hello ----
+
+    [ObservableProperty] private bool _isHelloAvailable;
+    [ObservableProperty] private bool _isHelloEnabled;
+    [ObservableProperty] private string? _helloMessage;
+
+    public async Task LoadHelloStateAsync()
+    {
+        IsHelloAvailable = await WindowsHelloService.IsAvailableAsync();
+        IsHelloEnabled = _session.Vault is { } vault && _session.Hello.IsEnabled(vault.Document.VaultId);
+    }
+
+    [RelayCommand]
+    private async Task EnableHelloAsync()
+    {
+        var vault = _session.Vault!;
+        var key = vault.ExportVaultKey();
+        try
+        {
+            var outcome = await _session.Hello.EnableAsync(vault.Document.VaultId, key);
+            IsHelloEnabled = outcome == HelloOutcome.Success;
+            HelloMessage = outcome switch
+            {
+                HelloOutcome.Success => "Turned on. Next time, unlock with your face, fingerprint or PIN.",
+                HelloOutcome.Cancelled => null,
+                HelloOutcome.NotSetUp => "Set up Windows Hello first (Windows Settings → Accounts → Sign-in options).",
+                _ => "Windows Hello couldn't be turned on.",
+            };
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DisableHelloAsync()
+    {
+        await _session.Hello.DisableAsync(_session.Vault!.Document.VaultId);
+        IsHelloEnabled = false;
+        HelloMessage = "Turned off. Only the master password unlocks this vault now.";
+    }
+
     // ---- Browser extension ----
 
     public ObservableCollection<BrowserPairing> ConnectedBrowsers { get; }

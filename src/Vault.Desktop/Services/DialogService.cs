@@ -35,6 +35,18 @@ public sealed class DialogService(ClipboardService clipboard)
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
     }
 
+    public string? PickBackupToRestore()
+    {
+        Directory.CreateDirectory(Vault.Core.Storage.VaultBackups.DefaultDirectory);
+        var dialog = new OpenFileDialog
+        {
+            Title = "Choose a backup to restore",
+            Filter = VaultFilter,
+            InitialDirectory = Vault.Core.Storage.VaultBackups.DefaultDirectory,
+        };
+        return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
+    }
+
     public string? PickImportFile()
     {
         var dialog = new OpenFileDialog
@@ -49,6 +61,21 @@ public sealed class DialogService(ClipboardService clipboard)
     {
         var dialog = new SaveFileDialog { Title = title, FileName = fileName, Filter = filter, OverwritePrompt = true };
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
+    }
+
+    /// <summary>Shows the health report; returns the login the user chose to fix, if any.</summary>
+    public Guid? ShowHealth(HealthViewModel viewModel)
+    {
+        Guid? chosen = null;
+        var window = new HealthWindow { DataContext = viewModel, Owner = Owner };
+        viewModel.EditRequested += (_, id) =>
+        {
+            chosen = id;
+            window.Close();
+        };
+        window.Closed += (_, _) => viewModel.Cancel();
+        window.ShowDialog();
+        return chosen;
     }
 
     public void ShowSettings(SettingsViewModel viewModel) =>

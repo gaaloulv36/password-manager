@@ -7,6 +7,9 @@ using Vault.Core.Storage;
 
 namespace Vault.Desktop.Services;
 
+/// <summary>Why a change on disk wasn't merged; <paramref name="CanOverwrite"/> when replacing the file with the open vault is safe.</summary>
+public sealed record SyncFailure(string Message, bool CanOverwrite);
+
 /// <summary>
 /// The currently open vault file and, while unlocked, its decrypted session. Watches the file so
 /// changes synced in from another PC are merged in as soon as they arrive.
@@ -43,7 +46,7 @@ public sealed class VaultSession
     public event EventHandler<SyncResult>? ExternalChangesMerged;
 
     /// <summary>The file changed on disk but couldn't be merged. Raised on the UI thread.</summary>
-    public event EventHandler<string>? SyncFailed;
+    public event EventHandler<SyncFailure>? SyncFailed;
 
     /// <summary>The browser extension saved or updated a login (message describes it). Raised on the UI thread.</summary>
     public event EventHandler<string>? ChangedByBrowser;
@@ -58,11 +61,58 @@ public sealed class VaultSession
         Open(path, vault);
     }
 
+    public WindowsHelloService Hello { get; } = new();
+
     /// <summary>Slow (Argon2id) — call off the UI thread.</summary>
     public void Unlock(string path, string masterPassword)
     {
         Open(path, UnlockedVault.Unlock(VaultFileStore.Load(path), masterPassword));
+        BackUpDaily(path);
+    }
 
+    /// <summary>Whether this vault file can be unlocked with Windows Hello on this PC.</summary>
+    public bool IsHelloEnabled(string path)
+    {
+        try
+        {
+            return Hello.IsEnabled(VaultFileStore.Load(path).VaultId);
+        }
+        catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    /// <exception cref="CryptographicException">The stored Hello data no longer fits this vault; Hello has been turned off.</exception>
+    public async Task<HelloOutcome> UnlockWithHelloAsync(string path)
+    {
+        var document = VaultFileStore.Load(path);
+        byte[]? vaultKey = null;
+        try
+        {
+            HelloOutcome outcome;
+            try
+            {
+                (outcome, vaultKey) = await Hello.UnlockAsync(document.VaultId);
+                if (vaultKey is null) return outcome;
+                Open(path, UnlockedVault.UnlockWithVaultKey(document, vaultKey));
+            }
+            catch (CryptographicException)
+            {
+                await Hello.DisableAsync(document.VaultId);
+                throw;
+            }
+            BackUpDaily(path);
+            return HelloOutcome.Success;
+        }
+        finally
+        {
+            if (vaultKey is not null) CryptographicOperations.ZeroMemory(vaultKey);
+        }
+    }
+
+    private static void BackUpDaily(string path)
+    {
         try
         {
             VaultBackups.CreateDailyBackup(path, VaultBackups.DefaultDirectory, DateOnly.FromDateTime(DateTime.Now));
@@ -141,14 +191,26 @@ public sealed class VaultSession
                 return;
             }
             _readRetries = 0;
-            SyncFailed?.Invoke(this, $"Changes to the vault file couldn't be read. ({ex.Message})");
+            SyncFailed?.Invoke(this, new SyncFailure($"Changes to the vault file couldn't be read. ({ex.Message})", CanOverwrite: false));
         }
         catch (Exception ex) when (ex is CryptographicException or InvalidOperationException)
         {
-            SyncFailed?.Invoke(this,
+            SyncFailed?.Invoke(this, new SyncFailure(
                 "The vault file on disk was modified by something other than this app, or replaced by a different vault, " +
-                $"so it was not merged. Your open vault is unchanged. ({ex.Message})");
+                $"so it was not merged. Your open vault is unchanged. ({ex.Message})", CanOverwrite: true));
         }
+    }
+
+    /// <summary>
+    /// Writes the open vault over a rejected file on disk. The rejected file is kept in the backups folder.
+    /// Only offered for tampered/foreign files — never for read errors, which may just be a sync still in progress.
+    /// </summary>
+    public void ReplaceDiskFileWithOpenVault()
+    {
+        var vault = Vault ?? throw new InvalidOperationException("The vault is locked.");
+        VaultBackups.SetAside(Path!, VaultBackups.DamagedDirectory);
+        VaultFileStore.Save(vault.Document, Path!);
+        _lastKnownFileHash = HashFile(Path!);
     }
 
     private void StartWatching(string path)

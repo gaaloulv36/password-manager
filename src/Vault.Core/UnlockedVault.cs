@@ -72,6 +72,31 @@ public sealed class UnlockedVault : IDisposable
         }
     }
 
+    /// <summary>Opens the vault with its raw key (from quick unlock). The header MAC proves the key is right.</summary>
+    /// <exception cref="CryptographicException">Wrong key, or the header was tampered with.</exception>
+    public static UnlockedVault UnlockWithVaultKey(VaultDocument document, ReadOnlySpan<byte> vaultKey)
+    {
+        if (vaultKey.Length != VaultCrypto.KeySize) throw new CryptographicException("Invalid vault key.");
+        var vault = new UnlockedVault(document, vaultKey.ToArray());
+        try
+        {
+            vault.VerifyHeader(document);
+            return vault;
+        }
+        catch
+        {
+            vault.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>A copy of the vault key, for wrapping it for quick unlock. Zero it after use.</summary>
+    public byte[] ExportVaultKey()
+    {
+        ThrowIfLocked();
+        return (byte[])_vaultKey.Clone();
+    }
+
     /// <summary>Re-wraps the vault key only; items don't need to be re-encrypted.</summary>
     public void ChangeMasterPassword(ReadOnlySpan<char> newMasterPassword, KdfParameters? kdf = null)
     {

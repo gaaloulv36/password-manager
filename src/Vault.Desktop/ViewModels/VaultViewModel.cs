@@ -199,6 +199,15 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     private void Lock() => _session.Lock();
 
     [RelayCommand]
+    private void OpenHealth()
+    {
+        if (_dialogs.ShowHealth(new HealthViewModel(_session)) is not { } itemId || !_session.IsUnlocked) return;
+        SearchText = "";
+        SelectedItem = Items.FirstOrDefault(i => i.Id == itemId);
+        if (SelectedItem is not null) EditItem();
+    }
+
+    [RelayCommand]
     private void OpenSettings()
     {
         _dialogs.ShowSettings(_createSettings());
@@ -230,7 +239,37 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
         ShowMergeStatus(result);
     }
 
-    private void OnSyncFailed(object? sender, string message) => _dialogs.ShowError(message);
+    private bool _showingSyncFailure;
+
+    private void OnSyncFailed(object? sender, SyncFailure failure)
+    {
+        // The file may keep changing while the message is up; one dialog at a time.
+        if (_showingSyncFailure || !_session.IsUnlocked) return;
+        _showingSyncFailure = true;
+        try
+        {
+            if (!failure.CanOverwrite)
+            {
+                _dialogs.ShowError(failure.Message);
+                return;
+            }
+
+            if (!_dialogs.Confirm(failure.Message + "\n\nReplace the file on disk with your open vault? The rejected file is kept in the backups folder.",
+                    "Vault file rejected"))
+                return;
+
+            _session.ReplaceDiskFileWithOpenVault();
+            ShowStatus("The vault file on disk was replaced with your open vault");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _dialogs.ShowError($"The vault file couldn't be replaced.\n\n{ex.Message}");
+        }
+        finally
+        {
+            _showingSyncFailure = false;
+        }
+    }
 
     private void OnChangedByBrowser(object? sender, string message)
     {

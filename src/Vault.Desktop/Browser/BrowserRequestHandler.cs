@@ -197,7 +197,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
 
         var item = existing is null
             ? new VaultItem { Title = UrlMatcher.DisplayHost(url) ?? origin, Username = username, Password = password, Urls = [origin] }
-            : existing with { Password = password };
+            : existing with { Password = password, PasswordChangedAt = DateTimeOffset.UtcNow };
         session.Vault!.Upsert(item);
         session.Save();
 

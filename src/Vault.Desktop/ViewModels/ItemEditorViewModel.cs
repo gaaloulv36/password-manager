@@ -38,6 +38,12 @@ public sealed partial class ItemEditorViewModel : ObservableObject
     [ObservableProperty] private string _username;
     [ObservableProperty] private string _password;
 
+    /// <summary>Masked by default, like in the details view.</summary>
+    [ObservableProperty] private bool _isPasswordRevealed;
+
+    [RelayCommand]
+    private void ToggleReveal() => IsPasswordRevealed = !IsPasswordRevealed;
+
     /// <summary>One website per line.</summary>
     [ObservableProperty] private string _urls;
 
@@ -74,11 +80,13 @@ public sealed partial class ItemEditorViewModel : ObservableObject
             .Select(u => u.Contains("://", StringComparison.Ordinal) ? u : "https://" + u)
             .ToList();
 
+        var password = NullIfBlank(Password);
         var item = (_original ?? new VaultItem { Title = "" }) with
         {
             Title = Title.Trim(),
             Username = NullIfBlank(Username.Trim()),
-            Password = NullIfBlank(Password),
+            Password = password,
+            PasswordChangedAt = _original is not null && _original.Password == password ? _original.PasswordChangedAt : DateTimeOffset.UtcNow,
             Urls = urls,
             Notes = NullIfBlank(Notes),
             TotpSecret = NullIfBlank(totp),

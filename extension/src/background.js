@@ -133,7 +133,10 @@ async function loginCaptured(tabId, url, username, password) {
 
   const prompt = { url, username, password, site: check.site, kind: check.status, expires: Date.now() + 60_000 };
   pendingSaves.set(tabId, prompt);
-  return { site: prompt.site, username, kind: prompt.kind };
+  // Always shown by the top-level page, even when the login form was in an iframe.
+  api.tabs.sendMessage(tabId, { cmd: 'show-save-prompt', prompt: { site: prompt.site, username, kind: prompt.kind } }, { frameId: 0 })
+    .catch(() => {}); // page is navigating; it asks for the pending prompt once loaded
+  return null;
 }
 
 function pendingSave(tabId) {

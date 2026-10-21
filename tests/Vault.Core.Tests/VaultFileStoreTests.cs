@@ -65,8 +65,16 @@ public class PasswordStrengthTests
     [InlineData("", StrengthLevel.VeryWeak)]
     [InlineData("aaaaaaaaaaaaaaaa", StrengthLevel.VeryWeak)]
     [InlineData("hello", StrengthLevel.VeryWeak)]
-    [InlineData("hunter22", StrengthLevel.Weak)]
+    [InlineData("hunter22", StrengthLevel.VeryWeak)]   // common word + digits
+    [InlineData("Password1!", StrengthLevel.VeryWeak)] // what naive meters call "strong"
+    [InlineData("P@ssw0rd", StrengthLevel.VeryWeak)]   // l33t spelling
+    [InlineData("Dragon2024", StrengthLevel.VeryWeak)]
+    [InlineData("qwerty123", StrengthLevel.VeryWeak)]  // keyboard run + number run
+    [InlineData("asdf1234", StrengthLevel.VeryWeak)]
+    [InlineData("azertyuiop", StrengthLevel.VeryWeak)] // French keyboard row
+    [InlineData("zyxwvuts", StrengthLevel.VeryWeak)]   // backwards alphabet
     [InlineData("Tr0ub4dor&3", StrengthLevel.Strong)]
+    [InlineData("k7#Qp2!vXm9@", StrengthLevel.Strong)]
     [InlineData("correct-horse-battery-staple", StrengthLevel.VeryStrong)]
     public void Evaluate_RanksPasswords(string password, StrengthLevel expected) =>
         Assert.Equal(expected, PasswordStrength.Evaluate(password));

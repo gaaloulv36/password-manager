@@ -11,5 +11,8 @@ public sealed record VaultItem
     public string? Notes { get; init; }
     public string? TotpSecret { get; init; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+
+    /// <summary>When the password itself last changed (null: since <see cref="CreatedAt"/>). Used for "old password" warnings.</summary>
+    public DateTimeOffset? PasswordChangedAt { get; init; }
     public DateTimeOffset UpdatedAt { get; init; } = DateTimeOffset.UtcNow;
 }
