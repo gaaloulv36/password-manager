@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Vault.Core.Import;
 using Vault.Core.Models;
 using Vault.Core.Otp;
 using Vault.Core.Storage;
@@ -150,6 +151,43 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void OpenGenerator() => _dialogs.ShowGenerator(allowUse: false);
+
+    [RelayCommand]
+    private void Import()
+    {
+        if (_dialogs.PickImportFile() is not { } path) return;
+
+        ImportResult result;
+        try
+        {
+            result = VaultImporter.Parse(File.ReadAllText(path));
+        }
+        catch (Exception ex) when (ex is FormatException or IOException or UnauthorizedAccessException)
+        {
+            _dialogs.ShowError($"This file can't be imported.\n\n{ex.Message}");
+            return;
+        }
+
+        var preview = new ImportViewModel(path, result, Items);
+        if (!_dialogs.ShowImport(preview)) return;
+
+        var imported = preview.ItemsToImport.ToList();
+        foreach (var item in imported) _session.Vault!.Upsert(item);
+        Persist();
+        ShowStatus($"Imported {imported.Count} entries from {result.Format}");
+
+        if (preview.DeleteFileAfterImport)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                _dialogs.ShowError($"The import worked, but {Path.GetFileName(path)} couldn't be deleted. Please delete it yourself.\n\n{ex.Message}");
+            }
+        }
+    }
 
     [RelayCommand]
     private void Lock() => _session.Lock();

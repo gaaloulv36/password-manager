@@ -33,6 +33,23 @@ public sealed class DialogService(ClipboardService clipboard)
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
     }
 
+    public string? PickImportFile()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Import passwords",
+            Filter = "Password exports (*.csv;*.json)|*.csv;*.json|All files (*.*)|*.*",
+        };
+        return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
+    }
+
+    public bool ShowImport(ImportViewModel viewModel)
+    {
+        var window = new ImportWindow { DataContext = viewModel, Owner = Owner };
+        viewModel.Confirmed += (_, _) => window.DialogResult = true;
+        return window.ShowDialog() == true;
+    }
+
     public bool Confirm(string message, string title) =>
         MessageBox.Show(Owner!, message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
 

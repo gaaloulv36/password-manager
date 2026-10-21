@@ -68,6 +68,7 @@
                 <Button Content="＋ New entry" Command="{Binding NewItemCommand}" Style="{StaticResource AccentButtonStyle}"
                         ToolTip="Ctrl+N" Margin="0,0,8,0" />
                 <Button Content="Generator" Command="{Binding OpenGeneratorCommand}" Margin="0,0,8,0" />
+                <Button Content="Import…" Command="{Binding ImportCommand}" Margin="0,0,8,0" />
                 <Button Content="🔒 Lock" Command="{Binding LockCommand}" ToolTip="Ctrl+L" />
             </StackPanel>
             <TextBlock Text="{Binding VaultName}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
