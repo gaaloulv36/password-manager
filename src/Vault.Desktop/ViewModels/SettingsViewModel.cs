@@ -134,7 +134,8 @@ public sealed partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void BackupNow()
     {
-        var name = $"{Path.GetFileNameWithoutExtension(VaultPath)}-backup-{DateTime.Now:yyyy-MM-dd}.pmvault";
+        // Spaces, not dashes: "Name-xyz" is how OneDrive names conflict copies.
+        var name = $"{Path.GetFileNameWithoutExtension(VaultPath)} backup {DateTime.Now:yyyy-MM-dd}.pmvault";
         if (_dialogs.PickSaveFile("Save encrypted backup", name, "Password vault (*.pmvault)|*.pmvault") is not { } target) return;
 
         try

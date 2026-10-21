@@ -72,12 +72,15 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Backups: automatic daily copy (last 14, `%LOCALAPPDATA%\PasswordManager\Backups`), manual backup; CSV export behind master password + warning
 - [ ] Later: mask password in edit mode; better strength meter (zxcvbn-style); Windows Hello unlock (Phase 5)
 
-### Phase 3 — File sync
-- [ ] Choose vault location (e.g. OneDrive folder)
-- [ ] `FileSystemWatcher` → reload + merge when the file changes on disk
-- [ ] Before saving: re-read file, merge, then write (never blindly overwrite)
-- [ ] Detect OneDrive "conflict copies" (`vault-PCNAME.pmvault`) and merge them in
-- [ ] Automatic dated backups (keep last N)
+### Phase 3 — File sync ✅
+- [x] Choose vault location (OneDrive suggested on create)
+- [x] `FileSystemWatcher` (1 s debounce) → merge when the file changes on disk; own saves skipped by file hash
+- [x] Only write back when the file is missing something (`VaultSync.SyncWithDisk`) → no save ping-pong between PCs
+- [x] Before saving: re-read file, merge, then write (never blindly overwrite)
+- [x] Conflict copies (OneDrive `Name-PC`, Dropbox "conflicted copy", Syncthing `.sync-conflict-`, `Name (1)`) merged, then moved to the backups folder; other vaults' files ignored (VaultId)
+- [x] Half-written files retried (5×); tampered/foreign files refused with a warning, open vault untouched
+- [x] Automatic dated backups (keep last 14)
+- [ ] Later: offer "overwrite the damaged file with my open vault" when the file on disk is rejected
 
 ### Phase 4 — Browser extension
 - [ ] `Vault.NativeHost` + registry entries for Chrome/Edge/Firefox native messaging

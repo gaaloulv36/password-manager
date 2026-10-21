@@ -41,6 +41,9 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
         _ticker.Start();
         _statusTimer.Tick += (_, _) => { _statusTimer.Stop(); StatusMessage = null; };
 
+        _session.ExternalChangesMerged += OnExternalChangesMerged;
+        _session.SyncFailed += OnSyncFailed;
+
         Reload();
         SelectedItem = ItemsView.Cast<VaultItem>().FirstOrDefault();
     }
@@ -203,6 +206,8 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _session.ExternalChangesMerged -= OnExternalChangesMerged;
+        _session.SyncFailed -= OnSyncFailed;
         _ticker.Stop();
         _statusTimer.Stop();
     }
@@ -211,9 +216,19 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     {
         _session.Vault!.Upsert(item);
         Editor = null;
+        ShowStatus("Saved"); // replaced by the merge summary if the save pulled in changes from another PC
         Persist(item.Id);
-        ShowStatus("Saved");
     }
+
+    /// <summary>The file changed on disk (another PC saved) and was merged in. An open editor keeps its unsaved edits.</summary>
+    private void OnExternalChangesMerged(object? sender, SyncResult result)
+    {
+        if (!_session.IsUnlocked) return;
+        Reload();
+        ShowMergeStatus(result);
+    }
+
+    private void OnSyncFailed(object? sender, string message) => _dialogs.ShowError(message);
 
     private void CloseEditor() => Editor = null;
 
@@ -223,7 +238,7 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
         try
         {
             var result = _session.Save();
-            if (result?.HasChanges == true) ShowMergeStatus(result);
+            if (result.HasChanges) ShowMergeStatus(result);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -275,13 +290,14 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
         }
     }
 
-    private void ShowMergeStatus(MergeResult result)
+    private void ShowMergeStatus(SyncResult result)
     {
         var parts = new List<string>();
         if (result.Added > 0) parts.Add($"{result.Added} added");
         if (result.Updated > 0) parts.Add($"{result.Updated} updated");
         if (result.Deleted > 0) parts.Add($"{result.Deleted} deleted");
-        if (parts.Count > 0) ShowStatus($"Merged changes from another PC: {string.Join(", ", parts)}");
+        if (parts.Count > 0) ShowStatus($"Synced changes from another PC: {string.Join(", ", parts)}");
+        else if (result.MergedConflictCopies.Count > 0) ShowStatus("Merged a sync conflict copy of the vault");
         if (result.MasterPasswordChanged)
             _dialogs.ShowInfo("The master password was changed on another PC. Use the new password next time you unlock.");
     }
