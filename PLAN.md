@@ -82,7 +82,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Automatic dated backups (keep last 14)
 - [ ] Later: offer "overwrite the damaged file with my open vault" when the file on disk is rejected
 
-### Phase 4 — Browser extension ✅ (code complete; Chrome/Opera/Firefox not yet tried in a real browser)
+### Phase 4 — Browser extension ✅ (confirmed working by hand in Opera GX and Brave)
 - [x] `Vault.NativeHost` relays native-messaging frames ⇄ named pipe; can start the app on request
 - [x] Registry entries (HKCU) for Chrome, Edge, Chromium (Opera reads Chrome's) and Firefox, rewritten on every start
 - [x] Named-pipe server: `CurrentUserOnly` + client must be our own `Vault.NativeHost.exe`
@@ -93,7 +93,8 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Phishing guard enforced in the app (`UrlMatcher`): same host or subdomain, punycode, no HTTPS→HTTP, no bare TLDs
 - [x] Firefox build (`node extension/build.mjs` → `dist/firefox`), site-access request in popup
 - [x] Tests: C#⇄JS shared crypto vector; e2e through the real native host and app (12 checks)
-- [ ] Try in real Chrome / Edge / Opera / Firefox (content script + popup UI); iframes (all_frames) later
+- [x] Tried in real browsers: Opera GX, Brave (2026-10-21)
+- [ ] Try in Chrome / Edge / Firefox; iframes (all_frames) later
 - [ ] Publish to Chrome Web Store / Edge Add-ons / Opera add-ons / AMO (store IDs must be added to the host manifest)
 
 ### Phase 5 — Hardening & extras
