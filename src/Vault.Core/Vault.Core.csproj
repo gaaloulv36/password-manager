@@ -10,4 +10,9 @@
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- EFF large wordlist (CC BY 3.0): https://www.eff.org/dice -->
+    <EmbeddedResource Include="Generators\Resources\eff_large_wordlist.txt" LogicalName="Vault.Core.EffWordlist" />
+  </ItemGroup>
+
 </Project>

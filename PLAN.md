@@ -45,13 +45,13 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 
 ## Roadmap
 
-### Phase 1 — Core ✅ (started)
+### Phase 1 — Core ✅
 - [x] Argon2id + HKDF + AES-GCM (`VaultCrypto`)
 - [x] Vault file: create / unlock / save (atomic write + `.bak`) / change password
 - [x] Items with revisions + delete tombstones
 - [x] Password generator
-- [ ] Passphrase generator (EFF wordlist)
-- [ ] TOTP (RFC 6238) + tests against RFC vectors
+- [x] Passphrase generator (EFF large wordlist, embedded)
+- [x] TOTP (RFC 6238; SHA1/256/512, `otpauth://` URIs) + tests against all RFC vectors
 - [x] Merge two copies of the vault (`UnlockedVault.Merge`) — needed for sync
   - per item: latest `UpdatedAt` wins; revision / deleted / payload bytes only break ties deterministically → both PCs converge
   - header: higher `KeyGeneration` wins (master password changed on another PC → adopted, reported in `MergeResult`)
