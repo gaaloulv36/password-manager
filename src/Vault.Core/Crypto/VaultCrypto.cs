@@ -41,6 +41,11 @@ public static class VaultCrypto
 
     public static byte[] GenerateKey() => RandomNumberGenerator.GetBytes(KeySize);
 
+    public static byte[] ComputeMac(ReadOnlySpan<byte> key, ReadOnlySpan<byte> data) => HMACSHA256.HashData(key, data);
+
+    public static bool VerifyMac(ReadOnlySpan<byte> key, ReadOnlySpan<byte> data, ReadOnlySpan<byte> expectedMac) =>
+        CryptographicOperations.FixedTimeEquals(ComputeMac(key, data), expectedMac);
+
     public static byte[] Encrypt(ReadOnlySpan<byte> key, ReadOnlySpan<byte> plaintext, ReadOnlySpan<byte> associatedData)
     {
         var output = new byte[NonceSize + plaintext.Length + TagSize];

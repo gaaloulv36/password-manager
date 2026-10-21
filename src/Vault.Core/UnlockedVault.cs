@@ -17,7 +17,7 @@ public sealed class UnlockedVault : IDisposable
     private readonly byte[] _vaultKey;
     private bool _disposed;
 
-    public VaultDocument Document { get; }
+    public VaultDocument Document { get; private set; }
 
     private UnlockedVault(VaultDocument document, byte[] vaultKey)
     {
@@ -29,16 +29,26 @@ public sealed class UnlockedVault : IDisposable
     {
         kdf ??= KdfParameters.CreateDefault();
         var vaultKey = VaultCrypto.GenerateKey();
-        var document = new VaultDocument { Kdf = kdf, WrappedVaultKey = WrapKey(vaultKey, masterPassword, kdf) };
+        var document = new VaultDocument
+        {
+            VaultId = Guid.NewGuid(),
+            Kdf = kdf,
+            WrappedVaultKey = WrapKey(vaultKey, masterPassword, kdf),
+            HeaderMac = [],
+        };
+        document.HeaderMac = ComputeHeaderMac(vaultKey, document);
         return new UnlockedVault(document, vaultKey);
     }
 
+    /// <exception cref="InvalidMasterPasswordException">Wrong master password.</exception>
+    /// <exception cref="CryptographicException">The file header was tampered with.</exception>
     public static UnlockedVault Unlock(VaultDocument document, ReadOnlySpan<char> masterPassword)
     {
         var wrappingKey = DeriveWrappingKey(masterPassword, document.Kdf);
+        byte[] vaultKey;
         try
         {
-            return new UnlockedVault(document, VaultCrypto.Decrypt(wrappingKey, document.WrappedVaultKey, VaultKeyAad));
+            vaultKey = VaultCrypto.Decrypt(wrappingKey, document.WrappedVaultKey, VaultKeyAad);
         }
         catch (CryptographicException)
         {
@@ -47,6 +57,18 @@ public sealed class UnlockedVault : IDisposable
         finally
         {
             CryptographicOperations.ZeroMemory(wrappingKey);
+        }
+
+        var vault = new UnlockedVault(document, vaultKey);
+        try
+        {
+            vault.VerifyHeader(document);
+            return vault;
+        }
+        catch
+        {
+            vault.Dispose();
+            throw;
         }
     }
 
@@ -57,6 +79,8 @@ public sealed class UnlockedVault : IDisposable
         kdf ??= KdfParameters.CreateDefault();
         Document.WrappedVaultKey = WrapKey(_vaultKey, newMasterPassword, kdf);
         Document.Kdf = kdf;
+        Document.KeyGeneration++;
+        Document.HeaderMac = ComputeHeaderMac(_vaultKey, Document);
     }
 
     public IReadOnlyList<VaultItem> GetItems()
@@ -68,19 +92,51 @@ public sealed class UnlockedVault : IDisposable
     public void Upsert(VaultItem item)
     {
         ThrowIfLocked();
-        item = item with { UpdatedAt = DateTimeOffset.UtcNow };
-        var payload = JsonSerializer.SerializeToUtf8Bytes(item);
-        var sealedPayload = VaultCrypto.Encrypt(_vaultKey, payload, ItemAad(item.Id));
-        CryptographicOperations.ZeroMemory(payload);
-
-        ReplaceItem(item.Id, revision => new EncryptedItem(item.Id, revision, item.UpdatedAt, sealedPayload));
+        var (revision, updatedAt) = NextVersion(item.Id);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(item with { UpdatedAt = updatedAt });
+        try
+        {
+            Store(Seal(item.Id, revision, updatedAt, isDeleted: false, payload));
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(payload);
+        }
     }
 
-    /// <summary>Leaves a tombstone so deletions survive merging with an older copy of the file.</summary>
+    /// <summary>Leaves a tombstone so the deletion also reaches other copies of the vault.</summary>
     public void Delete(Guid id)
     {
         ThrowIfLocked();
-        ReplaceItem(id, revision => new EncryptedItem(id, revision, DateTimeOffset.UtcNow, Payload: null));
+        var (revision, updatedAt) = NextVersion(id);
+        Store(Seal(id, revision, updatedAt, isDeleted: true, []));
+    }
+
+    /// <summary>
+    /// Merges another copy of this vault (e.g. the file as changed on another PC) into this session.
+    /// Everything taken from <paramref name="remote"/> is authenticated first, so a tampered file
+    /// can't inject, roll back or delete entries.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="remote"/> is a different vault.</exception>
+    /// <exception cref="CryptographicException"><paramref name="remote"/> was tampered with.</exception>
+    public MergeResult Merge(VaultDocument remote)
+    {
+        ThrowIfLocked();
+        if (remote.VaultId != Document.VaultId)
+            throw new InvalidOperationException("This file belongs to a different vault.");
+
+        VerifyHeader(remote);
+
+        var ours = Document.Items.ToDictionary(i => i.Id);
+        foreach (var theirs in remote.Items)
+        {
+            if (!ours.TryGetValue(theirs.Id, out var local) || VaultMerger.CompareItems(theirs, local) > 0)
+                CryptographicOperations.ZeroMemory(Open(theirs));
+        }
+
+        var result = VaultMerger.Merge(Document, remote);
+        Document = result.Document;
+        return result;
     }
 
     public void Dispose()
@@ -90,19 +146,34 @@ public sealed class UnlockedVault : IDisposable
         _disposed = true;
     }
 
-    private void ReplaceItem(Guid id, Func<long, EncryptedItem> create)
+    /// <summary>
+    /// Next revision and timestamp for an item. The timestamp never goes backwards, even if this PC's
+    /// clock is behind the one that made the previous edit — otherwise the new edit would lose a merge.
+    /// </summary>
+    private (long Revision, DateTimeOffset UpdatedAt) NextVersion(Guid id)
     {
-        var index = Document.Items.FindIndex(i => i.Id == id);
-        var nextRevision = index >= 0 ? Document.Items[index].Revision + 1 : 1;
-        var updated = create(nextRevision);
-
-        if (index >= 0) Document.Items[index] = updated;
-        else Document.Items.Add(updated);
+        var existing = Document.Items.Find(i => i.Id == id);
+        var now = DateTimeOffset.UtcNow;
+        if (existing is null) return (1, now);
+        return (existing.Revision + 1, now > existing.UpdatedAt ? now : existing.UpdatedAt.AddTicks(1));
     }
+
+    private void Store(EncryptedItem item)
+    {
+        var index = Document.Items.FindIndex(i => i.Id == item.Id);
+        if (index >= 0) Document.Items[index] = item;
+        else Document.Items.Add(item);
+    }
+
+    private EncryptedItem Seal(Guid id, long revision, DateTimeOffset updatedAt, bool isDeleted, ReadOnlySpan<byte> payload) =>
+        new(id, revision, updatedAt, isDeleted, VaultCrypto.Encrypt(_vaultKey, payload, ItemAad(id, revision, updatedAt, isDeleted)));
+
+    private byte[] Open(EncryptedItem item) =>
+        VaultCrypto.Decrypt(_vaultKey, item.Payload, ItemAad(item.Id, item.Revision, item.UpdatedAt, item.IsDeleted));
 
     private VaultItem DecryptItem(EncryptedItem encrypted)
     {
-        var plaintext = VaultCrypto.Decrypt(_vaultKey, encrypted.Payload!, ItemAad(encrypted.Id));
+        var plaintext = Open(encrypted);
         try
         {
             return JsonSerializer.Deserialize<VaultItem>(plaintext)
@@ -114,8 +185,57 @@ public sealed class UnlockedVault : IDisposable
         }
     }
 
-    /// <summary>Binds each ciphertext to its item id, so encrypted payloads can't be swapped between items.</summary>
-    private static byte[] ItemAad(Guid id) => Encoding.UTF8.GetBytes($"pm:item:v1:{id:N}");
+    /// <summary>
+    /// Binds each ciphertext to its id and metadata, so payloads can't be swapped between items and
+    /// timestamps/deletion flags can't be forged to win a merge.
+    /// </summary>
+    private static byte[] ItemAad(Guid id, long revision, DateTimeOffset updatedAt, bool isDeleted) =>
+        Encoding.UTF8.GetBytes($"pm:item:v1:{id:N}:{revision}:{updatedAt.UtcTicks}:{(isDeleted ? 1 : 0)}");
+
+    private void VerifyHeader(VaultDocument document)
+    {
+        var macKey = VaultCrypto.DeriveSubkey(_vaultKey, "pm:header-mac:v1");
+        try
+        {
+            if (!VaultCrypto.VerifyMac(macKey, SerializeHeader(document), document.HeaderMac))
+                throw new CryptographicException("The vault header has been modified.");
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(macKey);
+        }
+    }
+
+    private static byte[] ComputeHeaderMac(byte[] vaultKey, VaultDocument document)
+    {
+        var macKey = VaultCrypto.DeriveSubkey(vaultKey, "pm:header-mac:v1");
+        try
+        {
+            return VaultCrypto.ComputeMac(macKey, SerializeHeader(document));
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(macKey);
+        }
+    }
+
+    private static byte[] SerializeHeader(VaultDocument document)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        writer.Write(document.FormatVersion);
+        writer.Write(document.VaultId.ToByteArray());
+        writer.Write(document.KeyGeneration);
+        writer.Write(document.Kdf.Salt.Length);
+        writer.Write(document.Kdf.Salt);
+        writer.Write(document.Kdf.MemoryKiB);
+        writer.Write(document.Kdf.Iterations);
+        writer.Write(document.Kdf.Parallelism);
+        writer.Write(document.WrappedVaultKey.Length);
+        writer.Write(document.WrappedVaultKey);
+        writer.Flush();
+        return stream.ToArray();
+    }
 
     private static byte[] WrapKey(byte[] vaultKey, ReadOnlySpan<char> masterPassword, KdfParameters kdf)
     {
