@@ -1,6 +1,6 @@
 # Password Manager browser extension
 
-Fills and saves logins from the Password Manager desktop app. Works in **Chrome, Edge and Opera** (same code), and **Firefox**.
+Fills and saves logins from the Password Manager desktop app. Works in **Chrome, Edge, Opera, Opera GX and Brave** (same code), and **Firefox**.
 
 The extension never stores passwords. It asks the desktop app for one login at a time, when you pick it. Every message is end-to-end encrypted with a key agreed when you connect the browser.
 
@@ -12,10 +12,11 @@ First run the desktop app once. On startup it registers its browser connector (`
 |---|---|
 | **Chrome** | `chrome://extensions` → turn on **Developer mode** → **Load unpacked** → pick the `extension` folder |
 | **Edge** | `edge://extensions` → turn on **Developer mode** → **Load unpacked** → pick the `extension` folder |
-| **Opera** | `opera://extensions` → turn on **Developer mode** → **Load unpacked** → pick the `extension` folder |
+| **Opera / Opera GX** | `opera://extensions` → turn on **Developer mode** → **Load unpacked** → pick the `extension` folder |
+| **Brave** | `brave://extensions` → turn on **Developer mode** → **Load unpacked** → pick the `extension` folder |
 | **Firefox** | Run `node extension/build.mjs`, then `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → pick `extension/dist/firefox/manifest.json`. Temporary add-ons are removed when Firefox restarts. For permanent use, the add-on must be signed by Mozilla. |
 
-Chrome, Edge and Opera all get the same extension ID (`mdkfdlddmhpcgcdlbnbjmedhbpfnodgp`, fixed by the `key` in `manifest.json`). The desktop app only accepts that ID.
+All Chromium-based browsers get the same extension ID (`mdkfdlddmhpcgcdlbnbjmedhbpfnodgp`, fixed by the `key` in `manifest.json`). The desktop app only accepts that ID.
 
 ## Connect
 

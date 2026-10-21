@@ -19,12 +19,14 @@ public static class NativeHostRegistration
 
     private const string FirefoxKey = @"Software\Mozilla\NativeMessagingHosts\";
 
-    // Opera (and Brave, Vivaldi) read Chrome's registry location on Windows.
+    // Opera / Opera GX read Chrome's and Chromium's keys (checked in opera_browser.dll). Brave's binary also
+    // references those two; its own key is registered as well in case a build looks there.
     private static readonly string[] ChromiumKeys =
     [
         @"Software\Google\Chrome\NativeMessagingHosts\",
         @"Software\Microsoft\Edge\NativeMessagingHosts\",
         @"Software\Chromium\NativeMessagingHosts\",
+        @"Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\",
     ];
 
     private static readonly string ManifestDirectory = Path.Combine(
