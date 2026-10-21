@@ -1,3 +1,4 @@
+using System.IO;
 using Vault.Core;
 using Vault.Core.Storage;
 
@@ -21,8 +22,33 @@ public sealed class VaultSession
     }
 
     /// <summary>Slow (Argon2id) — call off the UI thread.</summary>
-    public void Unlock(string path, string masterPassword) =>
+    public void Unlock(string path, string masterPassword)
+    {
         Open(path, UnlockedVault.Unlock(VaultFileStore.Load(path), masterPassword));
+
+        try
+        {
+            VaultBackups.CreateDailyBackup(path, VaultBackups.DefaultDirectory, DateOnly.FromDateTime(DateTime.Now));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // A missed backup must never block unlocking.
+        }
+    }
+
+    /// <summary>Checks a master password without touching the open session. Slow — call off the UI thread.</summary>
+    public bool VerifyMasterPassword(string masterPassword)
+    {
+        try
+        {
+            using var check = UnlockedVault.Unlock(Vault!.Document, masterPassword);
+            return true;
+        }
+        catch (InvalidMasterPasswordException)
+        {
+            return false;
+        }
+    }
 
     public MergeResult? Save() =>
         VaultFileStore.SaveMerged(Vault ?? throw new InvalidOperationException("The vault is locked."), Path!);

@@ -4,13 +4,15 @@ using Vault.Desktop.ViewModels;
 
 namespace Vault.Desktop.Views;
 
-public partial class CreateVaultView : UserControl
+public partial class CreateVaultView : UserControl, IHasPrimaryInput
 {
     public CreateVaultView()
     {
         InitializeComponent();
-        Loaded += (_, _) => PasswordInput.Focus();
+        Loaded += (_, _) => FocusPrimaryInput();
     }
+
+    public void FocusPrimaryInput() => PasswordInput.Focus();
 
     private CreateVaultViewModel ViewModel => (CreateVaultViewModel)DataContext;
 

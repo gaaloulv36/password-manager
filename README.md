@@ -76,15 +76,24 @@ Create strong random passwords from the entry editor or the toolbar.
 
 ## Locking
 
-The vault locks automatically so nobody can use it while you're away. When it locks, every decrypted entry is cleared from the app's memory and the master password is needed again.
+The vault locks automatically so nobody can use it while you're away. When it locks, the vault key is wiped from memory, the decrypted entries are discarded, and the master password is needed again.
 
 The vault locks:
-- after a period of inactivity (configurable, default 5 minutes),
+- after a period without keyboard or mouse use on the PC (configurable, default 5 minutes),
 - when you lock Windows (Win+L) or the PC goes to sleep,
 - when you click **Lock**,
 - optionally, when the window is minimized.
 
 Optionally, **Windows Hello** (PIN, fingerprint or face) can unlock the vault on a PC where you've already entered the master password once.
+
+---
+
+## Quick access
+
+- **Ctrl+Alt+P** from anywhere in Windows brings the app to the front, with the cursor in the search box (or the password field if the vault is locked).
+- Closing the window keeps the app running in the notification area (system tray), so it's always one click away. Right-click the tray icon to **Lock** or **Exit**. This can be turned off in Settings.
+- Starting the app again while it's already running just brings the open window to the front.
+- In the vault: **Ctrl+F** search, **Ctrl+N** new entry, **Ctrl+L** lock.
 
 ---
 
@@ -144,7 +153,7 @@ The app shows a preview before importing and flags duplicates.
 
 ### Export and backup
 - **Encrypted backup:** a copy of the vault that only opens with your master password. Safe to keep on a USB drive or in cloud storage.
-- **Automatic backups:** the app keeps the last few versions of the vault next to it, in case something goes wrong.
+- **Automatic backups:** once a day, when you unlock, the app saves a copy of the encrypted vault on this PC, outside your sync folder, and keeps the last 14. **Settings → Open backups folder** shows them.
 - **Plain CSV export:** available for moving to another password manager. It needs your master password and shows a warning, because the file is unencrypted.
 
 ---

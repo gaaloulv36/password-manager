@@ -1,6 +1,7 @@
 <Window x:Class="Vault.Desktop.Views.GeneratorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/Assets/app.ico"
         Title="Password generator"
         Width="520" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">

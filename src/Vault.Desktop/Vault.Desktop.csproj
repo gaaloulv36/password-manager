@@ -14,6 +14,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Only for NotifyIcon (tray icon); WPF has no equivalent. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyTitle>Password Manager</AssemblyTitle>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep WinForms/Drawing names out of global scope so they don't clash with WPF types (Application, Clipboard, …). -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
 </Project>

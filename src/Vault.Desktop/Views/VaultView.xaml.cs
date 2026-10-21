@@ -3,15 +3,21 @@ using System.Windows.Input;
 
 namespace Vault.Desktop.Views;
 
-public partial class VaultView : UserControl
+public partial class VaultView : UserControl, IHasPrimaryInput
 {
     public VaultView()
     {
         InitializeComponent();
-        Loaded += (_, _) => SearchInput.Focus();
+        Loaded += (_, _) => FocusPrimaryInput();
 
         var focusSearch = new RoutedCommand();
-        CommandBindings.Add(new CommandBinding(focusSearch, (_, _) => SearchInput.Focus()));
+        CommandBindings.Add(new CommandBinding(focusSearch, (_, _) => FocusPrimaryInput()));
         InputBindings.Add(new KeyBinding(focusSearch, Key.F, ModifierKeys.Control));
+    }
+
+    public void FocusPrimaryInput()
+    {
+        SearchInput.Focus();
+        SearchInput.SelectAll();
     }
 }

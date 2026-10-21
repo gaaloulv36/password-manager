@@ -69,6 +69,7 @@
                         ToolTip="Ctrl+N" Margin="0,0,8,0" />
                 <Button Content="Generator" Command="{Binding OpenGeneratorCommand}" Margin="0,0,8,0" />
                 <Button Content="Import…" Command="{Binding ImportCommand}" Margin="0,0,8,0" />
+                <Button Content="⚙ Settings" Command="{Binding OpenSettingsCommand}" Margin="0,0,8,0" />
                 <Button Content="🔒 Lock" Command="{Binding LockCommand}" ToolTip="Ctrl+L" />
             </StackPanel>
             <TextBlock Text="{Binding VaultName}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
@@ -104,7 +105,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <TextBlock Text="Your vault is empty.&#x0a;Click “New entry” to add your first login."
+                    <TextBlock Text="Your vault is empty.&#x0a;Click “New entry” to add your first login,&#x0a;or “Import…” to bring in passwords from another app."
                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}"
                                TextAlignment="Center" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Margin="16" />
                 </Grid>

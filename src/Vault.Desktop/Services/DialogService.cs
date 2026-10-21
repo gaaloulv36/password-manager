@@ -11,7 +11,9 @@ public sealed class DialogService(ClipboardService clipboard)
 {
     private const string VaultFilter = "Password vault (*.pmvault)|*.pmvault|All files (*.*)|*.*";
 
-    private static Window? Owner => Application.Current.MainWindow;
+    /// <summary>The active window, so dialogs opened from e.g. Settings stack on top of it rather than the main window.</summary>
+    private static Window? Owner =>
+        Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? Application.Current.MainWindow;
 
     public string? PickVaultToOpen()
     {
@@ -42,6 +44,15 @@ public sealed class DialogService(ClipboardService clipboard)
         };
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
     }
+
+    public string? PickSaveFile(string title, string fileName, string filter)
+    {
+        var dialog = new SaveFileDialog { Title = title, FileName = fileName, Filter = filter, OverwritePrompt = true };
+        return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
+    }
+
+    public void ShowSettings(SettingsViewModel viewModel) =>
+        new SettingsWindow { DataContext = viewModel, Owner = Owner }.ShowDialog();
 
     public bool ShowImport(ImportViewModel viewModel)
     {

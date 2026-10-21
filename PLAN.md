@@ -58,17 +58,19 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
   - everything taken from the other copy is authenticated first; different `VaultId` is refused
   - edit timestamps never go backwards, even if this PC's clock is behind
 
-### Phase 2 — Desktop MVP (first daily-usable version) — in progress
+### Phase 2 — Desktop MVP (first daily-usable version) ✅
 - [x] Create vault (strength meter, no-recovery acknowledgement, OneDrive suggested) / unlock screen (remembers last vault)
 - [x] Item list + instant search (title, username, websites, notes), detail/edit view, delete with confirmation
 - [x] Live 2FA codes with countdown
 - [x] Copy username/password/2FA code; clear clipboard after 30s; excluded from Win+V history and cloud clipboard
 - [x] Save = merge with file on disk first (`VaultFileStore.SaveMerged`), so another PC's changes are never overwritten
 - [x] Auto-lock on system idle (5 min), Windows lock, sleep
-- [ ] Auto-lock on minimize (optional setting) + settings page
+- [x] Settings window: auto-lock timeout, lock on minimize, clipboard delay, close-to-tray; change master password
 - [x] Generator dialog (password + passphrase)
-- [ ] Tray icon + global hotkey to open search
-- [ ] Import: Chrome/Edge CSV, Bitwarden JSON, KeePass CSV. Export: encrypted backup
+- [x] Tray icon, global hotkey Ctrl+Alt+P (focuses search/unlock), single instance
+- [x] Import: Chrome/Edge, Firefox, Bitwarden CSV/JSON, KeePass, KeePassXC — preview, duplicate detection, deletes the export file
+- [x] Backups: automatic daily copy (last 14, `%LOCALAPPDATA%\PasswordManager\Backups`), manual backup; CSV export behind master password + warning
+- [ ] Later: mask password in edit mode; better strength meter (zxcvbn-style); Windows Hello unlock (Phase 5)
 
 ### Phase 3 — File sync
 - [ ] Choose vault location (e.g. OneDrive folder)

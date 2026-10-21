@@ -12,6 +12,12 @@ public sealed class AppSettings
     public string? LastVaultPath { get; set; }
     public int AutoLockMinutes { get; set; } = 5;
     public int ClipboardClearSeconds { get; set; } = 30;
+    public bool LockOnMinimize { get; set; }
+
+    /// <summary>Closing the window keeps the app in the tray (needed later for the browser extension).</summary>
+    public bool CloseToTray { get; set; } = true;
+
+    public bool HasShownTrayHint { get; set; }
 
     public static AppSettings Load()
     {

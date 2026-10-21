@@ -22,14 +22,16 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     private readonly VaultSession _session;
     private readonly ClipboardService _clipboard;
     private readonly DialogService _dialogs;
+    private readonly Func<SettingsViewModel> _createSettings;
     private readonly DispatcherTimer _ticker = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(4) };
 
-    public VaultViewModel(VaultSession session, ClipboardService clipboard, DialogService dialogs)
+    public VaultViewModel(VaultSession session, ClipboardService clipboard, DialogService dialogs, Func<SettingsViewModel> createSettings)
     {
         _session = session;
         _clipboard = clipboard;
         _dialogs = dialogs;
+        _createSettings = createSettings;
 
         ItemsView = CollectionViewSource.GetDefaultView(Items);
         ItemsView.Filter = o => Matches((VaultItem)o);
@@ -191,6 +193,13 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void Lock() => _session.Lock();
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        _dialogs.ShowSettings(_createSettings());
+        if (_session.IsUnlocked) Reload();
+    }
 
     public void Dispose()
     {
