@@ -488,3 +488,6 @@ $RECYCLE.BIN/
 *.pmvault.bak
 *.pmvault.tmp
 
+
+# Built copies of the extension
+extension/dist/

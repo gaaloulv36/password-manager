@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Vault.Core.Generators;
 using Vault.Core.Import;
 using Vault.Core.Storage;
+using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 
 namespace Vault.Desktop.ViewModels;
@@ -20,13 +22,17 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly ClipboardService _clipboard;
     private readonly DialogService _dialogs;
 
-    public SettingsViewModel(AppSettings settings, VaultSession session, AutoLockService autoLock, ClipboardService clipboard, DialogService dialogs)
+    private readonly PairingStore _pairings;
+
+    public SettingsViewModel(AppSettings settings, VaultSession session, AutoLockService autoLock, ClipboardService clipboard, DialogService dialogs, PairingStore pairings)
     {
         _settings = settings;
         _session = session;
         _autoLock = autoLock;
         _clipboard = clipboard;
         _dialogs = dialogs;
+        _pairings = pairings;
+        ConnectedBrowsers = new ObservableCollection<BrowserPairing>(pairings.All);
 
         _autoLockMinutes = AutoLockChoices.FirstOrDefault(c => c.Value == settings.AutoLockMinutes) ?? AutoLockChoices[2];
         _clipboardSeconds = ClipboardChoices.FirstOrDefault(c => c.Value == settings.ClipboardClearSeconds) ?? ClipboardChoices[2];
@@ -124,6 +130,18 @@ public sealed partial class SettingsViewModel : ObservableObject
         {
             IsBusy = false;
         }
+    }
+
+    // ---- Browser extension ----
+
+    public ObservableCollection<BrowserPairing> ConnectedBrowsers { get; }
+
+    [RelayCommand]
+    private void DisconnectBrowser(BrowserPairing pairing)
+    {
+        if (!_dialogs.Confirm($"Disconnect {pairing.BrowserName}? It will need to be connected again to fill logins.", "Disconnect browser")) return;
+        _pairings.Remove(pairing.Id);
+        ConnectedBrowsers.Remove(pairing);
     }
 
     // ---- Backup & export ----

@@ -69,6 +69,32 @@
                 </StackPanel>
             </Border>
 
+            <!-- Browser extension -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Browser extension" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Hint}"
+                               Text="Browsers connected to this PC can fill and save logins while the vault is unlocked. To connect one, click the Password Manager icon in the browser's toolbar." />
+                    <TextBlock Text="No browsers connected yet." Style="{StaticResource Hint}" Margin="0,12,0,0"
+                               Visibility="{Binding ConnectedBrowsers.Count, Converter={StaticResource VisibleWhenNull}}" />
+                    <ItemsControl ItemsSource="{Binding ConnectedBrowsers}" Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,4">
+                                    <Button DockPanel.Dock="Right" Content="Disconnect"
+                                            Command="{Binding DataContext.DisconnectBrowserCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" />
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding BrowserName}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="{Binding PairedAt, StringFormat=Connected {0:d}}" Style="{StaticResource Hint}" Margin="0" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <!-- Backup & export -->
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                 <StackPanel>

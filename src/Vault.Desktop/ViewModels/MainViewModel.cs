@@ -1,5 +1,6 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 
 namespace Vault.Desktop.ViewModels;
@@ -12,17 +13,19 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ClipboardService _clipboard;
     private readonly DialogService _dialogs;
     private readonly AutoLockService _autoLock;
+    private readonly PairingStore _pairings;
 
     [ObservableProperty]
     private ObservableObject _currentPage = null!;
 
-    public MainViewModel(VaultSession session, AppSettings settings, ClipboardService clipboard, DialogService dialogs, AutoLockService autoLock)
+    public MainViewModel(VaultSession session, AppSettings settings, ClipboardService clipboard, DialogService dialogs, AutoLockService autoLock, PairingStore pairings)
     {
         _session = session;
         _settings = settings;
         _clipboard = clipboard;
         _dialogs = dialogs;
         _autoLock = autoLock;
+        _pairings = pairings;
 
         _session.Locked += (_, _) => ShowUnlock(_session.Path!);
         ShowStart();
@@ -40,7 +43,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void ShowVault() =>
         CurrentPage = new VaultViewModel(_session, _clipboard, _dialogs,
-            () => new SettingsViewModel(_settings, _session, _autoLock, _clipboard, _dialogs));
+            () => new SettingsViewModel(_settings, _session, _autoLock, _clipboard, _dialogs, _pairings));
 
     partial void OnCurrentPageChanging(ObservableObject value)
     {

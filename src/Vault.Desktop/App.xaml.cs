@@ -1,8 +1,11 @@
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Interop;
+using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 using Vault.Desktop.ViewModels;
+using Vault.Desktop.Views;
 
 namespace Vault.Desktop;
 
@@ -17,7 +20,11 @@ public partial class App : Application
     private AutoLockService? _autoLock;
     private TrayIcon? _tray;
     private GlobalHotkey? _hotkey;
+    private BrowserBridge? _bridge;
+    private readonly PairingStore _pairings = new();
     private bool _exiting;
+
+    public PairingStore Pairings => _pairings;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -41,7 +48,7 @@ public partial class App : Application
         _autoLock.LockRequested += (_, _) => _session.Lock();
         _session.Locked += (_, _) => _clipboard.ClearIfOurs();
 
-        var window = new MainWindow { DataContext = new MainViewModel(_session, _settings, _clipboard, dialogs, _autoLock) };
+        var window = new MainWindow { DataContext = new MainViewModel(_session, _settings, _clipboard, dialogs, _autoLock, _pairings) };
         window.Closing += OnMainWindowClosing;
         window.StateChanged += (_, _) =>
         {
@@ -52,10 +59,43 @@ public partial class App : Application
 
         _tray = new TrayIcon(ShowMainWindow, () => _session.Lock(), ExitApp);
         _hotkey = new GlobalHotkey(new WindowInteropHelper(window).Handle, HotkeyKey, control: true, alt: true, shift: false, ShowMainWindow);
+
+        StartBrowserIntegration();
+    }
+
+    private void StartBrowserIntegration()
+    {
+        try
+        {
+            NativeHostRegistration.Register();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            // The browser extension won't connect, but the app itself works fine.
+        }
+
+        var handler = new BrowserRequestHandler(_session!, _pairings, new BrowserUi(this));
+        _bridge = new BrowserBridge(handler, Dispatcher, NativeHostRegistration.HostPath);
+        _bridge.Start();
+    }
+
+    /// <summary>The browser link's window to the UI.</summary>
+    private sealed class BrowserUi(App app) : IBrowserUi
+    {
+        public void ShowApp() => app.ShowMainWindow();
+
+        public Task<bool> ConfirmPairingAsync(string browserName, string code)
+        {
+            var window = new PairingWindow(browserName, code);
+            window.Show();
+            window.Activate();
+            return window.Decision;
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _bridge?.Dispose();
         _hotkey?.Dispose();
         _tray?.Dispose();
         _autoLock?.Dispose();

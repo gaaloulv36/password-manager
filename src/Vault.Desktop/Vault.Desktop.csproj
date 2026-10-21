@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vault.Core\Vault.Core.csproj" />
+    <!-- Not used in code: built alongside so Vault.NativeHost.exe ships next to the app. -->
+    <ProjectReference Include="..\Vault.NativeHost\Vault.NativeHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>

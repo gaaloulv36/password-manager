@@ -43,6 +43,7 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
 
         _session.ExternalChangesMerged += OnExternalChangesMerged;
         _session.SyncFailed += OnSyncFailed;
+        _session.ChangedByBrowser += OnChangedByBrowser;
 
         Reload();
         SelectedItem = ItemsView.Cast<VaultItem>().FirstOrDefault();
@@ -208,6 +209,7 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     {
         _session.ExternalChangesMerged -= OnExternalChangesMerged;
         _session.SyncFailed -= OnSyncFailed;
+        _session.ChangedByBrowser -= OnChangedByBrowser;
         _ticker.Stop();
         _statusTimer.Stop();
     }
@@ -229,6 +231,13 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     }
 
     private void OnSyncFailed(object? sender, string message) => _dialogs.ShowError(message);
+
+    private void OnChangedByBrowser(object? sender, string message)
+    {
+        if (!_session.IsUnlocked) return;
+        Reload();
+        ShowStatus(message);
+    }
 
     private void CloseEditor() => Editor = null;
 

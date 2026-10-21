@@ -82,13 +82,19 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Automatic dated backups (keep last 14)
 - [ ] Later: offer "overwrite the damaged file with my open vault" when the file on disk is rejected
 
-### Phase 4 — Browser extension
-- [ ] `Vault.NativeHost` + registry entries for Chrome/Edge/Firefox native messaging
-- [ ] Named-pipe server in desktop app (restricted to current user via pipe ACL)
-- [ ] Pairing: first connection shows a code in the desktop app, confirm → shared key; all messages encrypted with it
-- [ ] Extension: detect login forms, match domain (public suffix list, exact host by default), fill on click (no silent autofill)
-- [ ] "Save this login?" prompt on form submit
-- [ ] Phishing guard: never fill on a domain that doesn't match the saved URL
+### Phase 4 — Browser extension ✅ (code complete; Chrome/Opera/Firefox not yet tried in a real browser)
+- [x] `Vault.NativeHost` relays native-messaging frames ⇄ named pipe; can start the app on request
+- [x] Registry entries (HKCU) for Chrome, Edge, Chromium (Opera reads Chrome's) and Firefox, rewritten on every start
+- [x] Named-pipe server: `CurrentUserOnly` + client must be our own `Vault.NativeHost.exe`
+- [x] Pairing: ECDH P-256 + HKDF; 6-digit code compared in browser and app; key stored with DPAPI; disconnect in Settings
+- [x] Every message AES-256-GCM with direction bound in; replayed/stale/forged messages rejected
+- [x] Extension (plain JS, no build step for Chromium): inline padlock menu, toolbar popup, Ctrl+Shift+L, fill on click
+- [x] "Save / Update login?" prompt after sign-in (survives the page navigating), "Never for this site"
+- [x] Phishing guard enforced in the app (`UrlMatcher`): same host or subdomain, punycode, no HTTPS→HTTP, no bare TLDs
+- [x] Firefox build (`node extension/build.mjs` → `dist/firefox`), site-access request in popup
+- [x] Tests: C#⇄JS shared crypto vector; e2e through the real native host and app (12 checks)
+- [ ] Try in real Chrome / Edge / Opera / Firefox (content script + popup UI); iframes (all_frames) later
+- [ ] Publish to Chrome Web Store / Edge Add-ons / Opera add-ons / AMO (store IDs must be added to the host manifest)
 
 ### Phase 5 — Hardening & extras
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)

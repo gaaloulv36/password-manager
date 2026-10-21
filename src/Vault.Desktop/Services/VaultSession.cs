@@ -45,6 +45,11 @@ public sealed class VaultSession
     /// <summary>The file changed on disk but couldn't be merged. Raised on the UI thread.</summary>
     public event EventHandler<string>? SyncFailed;
 
+    /// <summary>The browser extension saved or updated a login (message describes it). Raised on the UI thread.</summary>
+    public event EventHandler<string>? ChangedByBrowser;
+
+    public void NotifyChangedByBrowser(string message) => ChangedByBrowser?.Invoke(this, message);
+
     /// <summary>Slow (Argon2id) — call off the UI thread.</summary>
     public void Create(string path, string masterPassword)
     {

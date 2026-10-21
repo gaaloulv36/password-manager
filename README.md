@@ -115,22 +115,24 @@ What happens next:
 
 ## Browser extension
 
-The extension works in **Chrome, Edge and Firefox**, together with the desktop app.
+The extension works in **Chrome, Edge, Opera and Firefox**, together with the desktop app, which must be running. Installation steps are in [extension/README.md](extension/README.md).
 
 ### First-time pairing
-1. Install the extension and click its icon.
-2. The desktop app shows a **pairing code**. Check that it matches the one in the browser, then confirm.
-3. The browser is now paired. Pairing is needed only once per browser.
+1. Install the extension and click its icon, then **Connect**.
+2. The browser and the desktop app both show a **6-digit code**. Check that they match, then click **Approve** in the app.
+3. The browser is now paired. Pairing is needed only once per browser. **Settings → Browser extension** lists paired browsers and can disconnect them.
 
 ### Filling logins
-- On a login page, the extension shows an icon in the username/password fields.
-- Click it to see the matching entries for **this website** and choose one to fill.
-- If the vault is locked, the extension asks you to unlock it in the desktop app first.
+- On a login page, the extension shows a small padlock icon in the username/password fields.
+- Click it to see the matching entries for **this website** and choose one to fill. The toolbar icon and **Ctrl+Shift+L** do the same.
+- If the vault is locked, the extension offers to open the desktop app so you can unlock it. If the app isn't running, it can start it.
 - Logins are filled only when you click, never silently in the background.
 
 ### Phishing protection
-- A login is offered only on the website it was saved for. A look-alike address such as `g1thub.com` gets no suggestions for your GitHub login.
-- By default it matches the exact site. You can allow matching on all subdomains for each entry.
+- A login is offered only on the website it was saved for, or its subdomains. Saved for `google.com`, it's offered on `accounts.google.com` too. Saved for `accounts.google.com`, it's not offered on other Google subdomains.
+- Look-alike addresses get nothing: `g1thub.com`, `github.com.evil.example` and Unicode look-alikes are not offered your GitHub login.
+- A login saved for a secure (HTTPS) site is never filled on an insecure (HTTP) page.
+- The desktop app enforces these checks itself, so even a compromised web page can't request another site's password.
 
 ### Saving new logins
 - When you sign in or register on a site that isn't in your vault, the extension asks **"Save this login?"**
