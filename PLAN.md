@@ -97,13 +97,13 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [ ] Try in Chrome / Edge / Firefox; iframes (all_frames) later
 - [ ] Publish to Chrome Web Store / Edge Add-ons / Opera add-ons / AMO (store IDs must be added to the host manifest)
 
-### Phase 5a — Everyday comfort ✅ (needs a hands-on check: Windows Hello prompt)
+### Phase 5a — Everyday comfort ✅ (confirmed by hand, incl. Windows Hello, 2026-10-22)
 - [x] Windows Hello unlock: TPM key (KeyCredentialManager) signs a challenge → HKDF → wraps the vault key; stored in %LOCALAPPDATA%, never synced; turned off automatically if it stops matching (e.g. PIN reset)
 - [x] Password masked in the edit form (👁 to reveal)
 - [x] Login forms inside iframes (save prompt always shown by the top-level page)
 - [x] Damaged vault file: "Restore from a backup…" on the unlock page; "replace the file with my open vault" when a tampered/foreign file is detected while unlocked (old file kept in Backups\Damaged)
 
-### Phase 5b — Security checks ✅
+### Phase 5b — Security checks ✅ (confirmed by hand)
 - [x] Strength meter knows the 10k most common passwords (SecLists, MIT), l33t + number/symbol variants, keyboard/alphabet runs (QWERTY, AZERTY, QWERTZ)
 - [x] Breach check via Have I Been Pwned range API (k-anonymity, padded responses); on demand only
 - [x] Password health report: score, breached / reused / weak / not changed for a year, with Edit and Open website
