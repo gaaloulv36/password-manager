@@ -1,0 +1,55 @@
+name: Release
+
+# Push a tag like v1.0.0 to build, test and publish a release.
+# Installed copies of the app pick it up automatically (Velopack reads GitHub Releases).
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Version from tag
+        id: version
+        shell: pwsh
+        run: echo "value=$('${{ github.ref_name }}'.TrimStart('v'))" >> $env:GITHUB_OUTPUT
+
+      - name: Tests
+        run: |
+          dotnet test --nologo
+          node --test extension/test/protocol.test.mjs
+
+      - name: Build installer and extension
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./build/pack.ps1 -Version ${{ steps.version.outputs.value }} -GitHubToken $env:GITHUB_TOKEN
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = '${{ steps.version.outputs.value }}'
+          dotnet vpk upload github `
+            --repoUrl https://github.com/${{ github.repository }} `
+            --token $env:GH_TOKEN `
+            --outputDir artifacts/installer `
+            --tag "v$version" `
+            --releaseName "Password Manager $version" `
+            --publish
+          gh release upload "v$version" (Get-ChildItem artifacts/extension/*.zip).FullName --clobber

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build
+        run: dotnet build --nologo -warnaserror
+
+      - name: .NET tests
+        run: dotnet test --nologo --no-build
+
+      - name: Extension tests (crypto must match the C# side)
+        run: node --test extension/test/protocol.test.mjs

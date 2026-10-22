@@ -14,11 +14,12 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly DialogService _dialogs;
     private readonly AutoLockService _autoLock;
     private readonly PairingStore _pairings;
+    private readonly UpdateService _updates;
 
     [ObservableProperty]
     private ObservableObject _currentPage = null!;
 
-    public MainViewModel(VaultSession session, AppSettings settings, ClipboardService clipboard, DialogService dialogs, AutoLockService autoLock, PairingStore pairings)
+    public MainViewModel(VaultSession session, AppSettings settings, ClipboardService clipboard, DialogService dialogs, AutoLockService autoLock, PairingStore pairings, UpdateService updates)
     {
         _session = session;
         _settings = settings;
@@ -26,6 +27,7 @@ public sealed partial class MainViewModel : ObservableObject
         _dialogs = dialogs;
         _autoLock = autoLock;
         _pairings = pairings;
+        _updates = updates;
 
         _session.Locked += (_, _) => ShowUnlock(_session.Path!);
         ShowStart();
@@ -43,7 +45,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void ShowVault() =>
         CurrentPage = new VaultViewModel(_session, _clipboard, _dialogs,
-            () => new SettingsViewModel(_settings, _session, _autoLock, _clipboard, _dialogs, _pairings));
+            () => new SettingsViewModel(_settings, _session, _autoLock, _clipboard, _dialogs, _pairings, _updates));
 
     partial void OnCurrentPageChanging(ObservableObject value)
     {

@@ -12,24 +12,32 @@ var stdout = Console.OpenStandardOutput();
 var pipe = await ConnectToAppAsync(TimeSpan.FromSeconds(1));
 if (pipe is null)
 {
-    // The app isn't running. The extension may ask us to start it; otherwise report it.
-    while (await MessageFraming.ReadAsync(stdin) is { } frame)
+    // The app isn't running. Start it if the extension asks; otherwise answer and exit, rather than
+    // idling in the browser (an idle host would keep its files locked and block app updates).
+    if (await MessageFraming.ReadAsync(stdin) is not { } frame) return 0;
+
+    string? id = null;
+    var wantsLaunch = false;
+    try
     {
         var message = JsonDocument.Parse(frame).RootElement;
-        var id = message.TryGetProperty("id", out var i) ? i.GetString() : null;
-
-        if (message.TryGetProperty("type", out var type) && type.GetString() == "launch-app" && TryLaunchApp())
-        {
-            pipe = await ConnectToAppAsync(TimeSpan.FromSeconds(15));
-            if (pipe is not null)
-            {
-                await Reply(stdout, new { type = "app-started", id });
-                break;
-            }
-        }
-        await Reply(stdout, new { type = "app-not-running", id });
+        id = message.TryGetProperty("id", out var i) ? i.GetString() : null;
+        wantsLaunch = message.TryGetProperty("type", out var type) && type.GetString() == "launch-app";
     }
-    if (pipe is null) return 0;
+    catch (JsonException)
+    {
+    }
+
+    if (wantsLaunch && TryLaunchApp() && await ConnectToAppAsync(TimeSpan.FromSeconds(15)) is { } started)
+    {
+        pipe = started;
+        await Reply(stdout, new { type = "app-started", id });
+    }
+    else
+    {
+        await Reply(stdout, new { type = "app-not-running", id });
+        return 0;
+    }
 }
 
 await using (pipe)

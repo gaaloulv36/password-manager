@@ -22,6 +22,7 @@ public partial class App : Application
     private GlobalHotkey? _hotkey;
     private BrowserBridge? _bridge;
     private readonly PairingStore _pairings = new();
+    private readonly UpdateService _updates = new();
     private bool _exiting;
 
     public PairingStore Pairings => _pairings;
@@ -48,19 +49,39 @@ public partial class App : Application
         _autoLock.LockRequested += (_, _) => _session.Lock();
         _session.Locked += (_, _) => _clipboard.ClearIfOurs();
 
-        var window = new MainWindow { DataContext = new MainViewModel(_session, _settings, _clipboard, dialogs, _autoLock, _pairings) };
+        var window = new MainWindow { DataContext = new MainViewModel(_session, _settings, _clipboard, dialogs, _autoLock, _pairings, _updates) };
         window.Closing += OnMainWindowClosing;
         window.StateChanged += (_, _) =>
         {
             if (window.WindowState == WindowState.Minimized && _settings.LockOnMinimize) _session.Lock();
         };
         MainWindow = window;
-        window.Show();
+
+        // Started with Windows: stay in the tray until summoned.
+        if (e.Args.Contains(StartupRegistration.MinimizedArgument)) new WindowInteropHelper(window).EnsureHandle();
+        else window.Show();
 
         _tray = new TrayIcon(ShowMainWindow, () => _session.Lock(), ExitApp);
         _hotkey = new GlobalHotkey(new WindowInteropHelper(window).Handle, HotkeyKey, control: true, alt: true, shift: false, ShowMainWindow);
 
         StartBrowserIntegration();
+        _ = CheckForUpdatesInBackgroundAsync();
+    }
+
+    /// <summary>Quietly fetch a new version a little after startup; it's installed when the app exits (or on "Restart now").</summary>
+    private async Task CheckForUpdatesInBackgroundAsync()
+    {
+        if (!_updates.IsInstalled || !_settings.CheckForUpdates) return;
+        await Task.Delay(TimeSpan.FromSeconds(15));
+        try
+        {
+            if (await _updates.CheckAndDownloadAsync() is { } version)
+                _tray?.ShowHint("Update ready", $"Password Manager {version} will be installed when you exit, or restart it from Settings.");
+        }
+        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or IOException or TaskCanceledException or InvalidOperationException)
+        {
+            // Offline or GitHub unavailable: try again next start.
+        }
     }
 
     private void StartBrowserIntegration()
@@ -109,6 +130,7 @@ public partial class App : Application
         _session?.Lock();
         _clipboard?.ClearIfOurs();
         _instance?.Dispose();
+        _updates.ApplyOnExit();
         base.OnExit(e);
     }
 

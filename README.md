@@ -17,6 +17,13 @@ A personal, offline-first password manager for Windows with a companion browser 
 
 ## Getting started
 
+### Installing
+1. Download **`PasswordManager-win-Setup.exe`** from the latest [release](https://github.com/gaaloulv36/password-manager/releases/latest) and run it. No admin rights are needed, and nothing else needs to be installed first.
+2. Windows SmartScreen may warn that the publisher is unknown (the installer isn't code-signed yet). Choose **More info → Run anyway**.
+3. The app installs for your Windows account, adds a Start menu shortcut, and opens.
+
+**Updates** download in the background and install when you exit the app. You can also install them straight away from **Settings → App & updates**, where you can turn on **Start with Windows**. Uninstall from **Windows Settings → Apps**. Uninstalling keeps your vault file, settings and backups.
+
 ### Creating a vault
 1. On first launch, choose **Create new vault**.
 2. Pick where to save the vault file (for example, your OneDrive folder if you want it on multiple PCs).

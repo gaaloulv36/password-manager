@@ -34,6 +34,14 @@ public static class NativeHostRegistration
 
     public static string HostPath { get; } = Path.Combine(AppContext.BaseDirectory, "Vault.NativeHost.exe");
 
+    /// <summary>Removes the registry entries and manifests (on uninstall).</summary>
+    public static void Unregister()
+    {
+        foreach (var key in ChromiumKeys.Append(FirefoxKey))
+            Registry.CurrentUser.DeleteSubKeyTree(key + BrowserProtocol.HostName, throwOnMissingSubKey: false);
+        if (Directory.Exists(ManifestDirectory)) Directory.Delete(ManifestDirectory, recursive: true);
+    }
+
     public static void Register()
     {
         if (!File.Exists(HostPath)) return;

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Overridden by the release workflow from the git tag (v1.2.3 → 1.2.3). -->
+    <Version>0.9.0</Version>
+    <Authors>gaaloulv36</Authors>
+    <Product>Password Manager</Product>
+  </PropertyGroup>
+</Project>

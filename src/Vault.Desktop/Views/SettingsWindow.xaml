@@ -144,6 +144,29 @@
                 </StackPanel>
             </Border>
 
+            <!-- App & updates -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="App &amp; updates" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Text="{Binding Version, StringFormat=Version {0}}" Style="{StaticResource Hint}" />
+
+                    <StackPanel Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}">
+                        <CheckBox Content="Start with Windows (in the notification area)" IsChecked="{Binding StartWithWindows}" Margin="0,12,0,0" />
+                        <CheckBox Content="Download updates automatically" IsChecked="{Binding CheckForUpdates}" Margin="0,4,0,0" />
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="Check for updates" Command="{Binding CheckForUpdateNowCommand}" Margin="0,0,8,0" Padding="16,6" />
+                            <Button Content="Restart to update" Command="{Binding RestartToUpdateCommand}" Style="{StaticResource AccentButtonStyle}" Padding="16,6"
+                                    Visibility="{Binding IsUpdateReady, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding UpdateStatus}" Style="{StaticResource Hint}"
+                                   Visibility="{Binding UpdateStatus, Converter={StaticResource VisibleWhenSet}}" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0"
+                               Text="This copy runs from the source folder. Install Password Manager to get automatic updates and start with Windows."
+                               Visibility="{Binding IsInstalled, Converter={StaticResource InverseBoolToVisibility}}" />
+                </StackPanel>
+            </Border>
+
             <TextBlock Text="{Binding VaultPath, StringFormat=Vault file: {0}}" Style="{StaticResource Hint}" Margin="0,16,0,0" />
         </StackPanel>
     </ScrollViewer>

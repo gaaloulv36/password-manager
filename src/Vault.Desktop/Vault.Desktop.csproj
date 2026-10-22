@@ -8,10 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Velopack" Version="1.2.161" />
   </ItemGroup>
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <!-- Custom Main: Velopack's install/update hooks must run before WPF starts. -->
+    <StartupObject>Vault.Desktop.Program</StartupObject>
     <!-- Windows 10 SDK projections: Windows Hello (KeyCredentialManager). -->
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>

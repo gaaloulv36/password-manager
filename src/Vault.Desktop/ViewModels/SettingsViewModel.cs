@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vault.Core.Generators;
@@ -23,9 +24,15 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly DialogService _dialogs;
 
     private readonly PairingStore _pairings;
+    private readonly UpdateService _updates;
 
-    public SettingsViewModel(AppSettings settings, VaultSession session, AutoLockService autoLock, ClipboardService clipboard, DialogService dialogs, PairingStore pairings)
+    public SettingsViewModel(AppSettings settings, VaultSession session, AutoLockService autoLock, ClipboardService clipboard, DialogService dialogs,
+        PairingStore pairings, UpdateService updates)
     {
+        _updates = updates;
+        _startWithWindows = StartupRegistration.IsEnabled;
+        _checkForUpdates = settings.CheckForUpdates;
+        _updateStatus = updates.ReadyVersion is { } ready ? $"Version {ready} is downloaded and will be installed when you exit." : null;
         _settings = settings;
         _session = session;
         _autoLock = autoLock;
@@ -131,6 +138,54 @@ public sealed partial class SettingsViewModel : ObservableObject
             IsBusy = false;
         }
     }
+
+    // ---- App & updates ----
+
+    public string Version => _updates.CurrentVersion;
+    public bool IsInstalled => _updates.IsInstalled;
+    public bool IsUpdateReady => _updates.ReadyVersion is not null;
+
+    [ObservableProperty] private bool _startWithWindows;
+    [ObservableProperty] private bool _checkForUpdates;
+    [ObservableProperty] private string? _updateStatus;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdateNowCommand))]
+    private bool _isCheckingForUpdate;
+
+    partial void OnStartWithWindowsChanged(bool value) => StartupRegistration.SetEnabled(value);
+
+    partial void OnCheckForUpdatesChanged(bool value)
+    {
+        _settings.CheckForUpdates = value;
+        _settings.Save();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCheckForUpdate))]
+    private async Task CheckForUpdateNowAsync()
+    {
+        IsCheckingForUpdate = true;
+        UpdateStatus = "Checking…";
+        try
+        {
+            var version = await _updates.CheckAndDownloadAsync(p => UpdateStatus = $"Downloading… {p}%");
+            UpdateStatus = version is null ? "You have the latest version." : $"Version {version} is ready.";
+            OnPropertyChanged(nameof(IsUpdateReady));
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or InvalidOperationException)
+        {
+            UpdateStatus = "Couldn't check for updates. Are you online?";
+        }
+        finally
+        {
+            IsCheckingForUpdate = false;
+        }
+    }
+
+    private bool CanCheckForUpdate() => IsInstalled && !IsCheckingForUpdate;
+
+    [RelayCommand]
+    private void RestartToUpdate() => _updates.RestartToUpdate();
 
     // ---- Windows Hello ----
 

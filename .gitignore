@@ -491,3 +491,6 @@ $RECYCLE.BIN/
 
 # Built copies of the extension
 extension/dist/
+
+# Build outputs (installer, publish folder)
+artifacts/

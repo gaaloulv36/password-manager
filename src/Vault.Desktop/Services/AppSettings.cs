@@ -19,6 +19,9 @@ public sealed class AppSettings
 
     public bool HasShownTrayHint { get; set; }
 
+    /// <summary>Download new versions in the background (installed copies only).</summary>
+    public bool CheckForUpdates { get; set; } = true;
+
     public static AppSettings Load()
     {
         try

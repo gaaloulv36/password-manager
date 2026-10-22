@@ -28,6 +28,15 @@
 | Phishing | The **app** checks every request against the saved site: same host or a subdomain, punycode compared, never HTTPS→HTTP, never a bare TLD. |
 | Filling | Only after a real click (`isTrusted`), only into visible fields, and only if the page is still on the site the login was released for. |
 | Clipboard | Excluded from Win+V history and cloud clipboard; cleared after 30 s. |
+| Updates | Downloaded over HTTPS from this repository's GitHub Releases and checked against the release's SHA hashes (Velopack). Releases are only built by GitHub Actions from a version tag. |
+
+## Keep the update channel safe
+
+Installed copies update themselves from this repository's **GitHub Releases**. So **whoever controls the GitHub account `gaaloulv36` controls what gets installed**:
+
+- Turn on **two-factor authentication** for the GitHub account (Settings → Password and authentication).
+- Don't add collaborators with write access unless you trust them with your passwords.
+- Installers aren't code-signed yet (see PLAN.md Phase 8), so Windows SmartScreen will warn on first install.
 
 ## Review log
 
