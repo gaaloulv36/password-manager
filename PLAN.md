@@ -109,7 +109,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Password health report: score, breached / reused / weak / not changed for a year, with Edit and Open website
 - [x] `PasswordChangedAt` tracked when the password itself changes (editor, browser "update password")
 
-### Phase 6 — Installer & auto-update
+### Phase 6 — Installer & auto-update ✅
 - [x] Velopack: per-user install in %LOCALAPPDATA%\PasswordManager, no admin, Start menu shortcut
 - [x] Self-contained (.NET bundled); app + native host published into one folder (~88 MB installer, delta updates after)
 - [x] Auto-update from GitHub Releases: background download, install on exit or "Restart to update"; can be turned off
@@ -118,7 +118,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Native host exits when the app isn't running (doesn't lock files during updates)
 - [x] `build/pack.ps1` (installer + extension zips); GitHub Actions: CI on push, release on `v*` tag
 - [x] v1.0.0 released 2026-10-22 (GitHub Actions), installed by hand
-- [ ] v1.0.1: auto-update from v1.0.0 confirmed on this PC
+- [x] Auto-update confirmed on this PC: 0.9.0 → 1.0.1 (app + native host updated, connector path unchanged)
 
 ### Phase 5 — Hardening & extras (remaining)
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)
