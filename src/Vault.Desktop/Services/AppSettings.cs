@@ -19,6 +19,9 @@ public sealed class AppSettings
 
     public bool HasShownTrayHint { get; set; }
 
+    /// <summary>Hide the app's windows from screenshots and screen sharing.</summary>
+    public bool ProtectFromScreenCapture { get; set; } = true;
+
     /// <summary>Download new versions in the background (installed copies only).</summary>
     public bool CheckForUpdates { get; set; } = true;
 

@@ -153,7 +153,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
     }
 
     private List<VaultItem> MatchingItems(string url) =>
-        session.Vault!.GetItems().Where(i => i.Urls.Any(saved => UrlMatcher.Matches(saved, url))).ToList();
+        session.Vault!.GetItems().Where(i => i.Urls.Any(saved => UrlMatcher.Matches(saved, url, i.MatchExactHost))).ToList();
 
     /// <summary>Titles and usernames only — a password is released one at a time, on a click.</summary>
     private JsonObject GetLogins(string url) => Ok(new JsonObject
@@ -197,7 +197,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
 
         var item = existing is null
             ? new VaultItem { Title = UrlMatcher.DisplayHost(url) ?? origin, Username = username, Password = password, Urls = [origin] }
-            : existing with { Password = password, PasswordChangedAt = DateTimeOffset.UtcNow };
+            : existing.WithPassword(password, DateTimeOffset.UtcNow); // old password goes into the history
         session.Vault!.Upsert(item);
         session.Save();
 

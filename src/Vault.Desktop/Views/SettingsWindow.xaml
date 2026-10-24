@@ -32,6 +32,11 @@
                     <CheckBox Content="Lock when the window is minimized" IsChecked="{Binding LockOnMinimize}" Margin="0,12,0,0" />
                     <CheckBox Content="Keep running in the notification area when the window is closed" IsChecked="{Binding CloseToTray}" Margin="0,4,0,0" />
 
+                    <CheckBox IsChecked="{Binding ProtectFromScreenCapture}" Margin="0,4,0,0">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="Hide Password Manager from screenshots and screen sharing (Teams, Zoom, Discord…)" />
+                    </CheckBox>
+
                     <TextBlock Text="Clear copied passwords from the clipboard after" Style="{StaticResource FieldLabel}" />
                     <ComboBox ItemsSource="{Binding ClipboardChoices}" SelectedItem="{Binding ClipboardSeconds}" DisplayMemberPath="Label"
                               HorizontalAlignment="Left" MinWidth="180" />

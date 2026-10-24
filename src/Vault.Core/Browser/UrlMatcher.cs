@@ -8,7 +8,8 @@ namespace Vault.Core.Browser;
 /// </summary>
 public static class UrlMatcher
 {
-    public static bool Matches(string savedUrl, string pageUrl)
+    /// <param name="exactHost">Only the saved host itself (still ignoring "www."), never its subdomains.</param>
+    public static bool Matches(string savedUrl, string pageUrl, bool exactHost = false)
     {
         if (!TryParse(savedUrl, out var saved) || !TryParse(pageUrl, out var page)) return false;
         if (page.Scheme is not ("https" or "http")) return false;
@@ -20,7 +21,7 @@ public static class UrlMatcher
         var pageHost = Normalize(page.IdnHost);
         if (!IsSpecificHost(savedHost)) return false;
 
-        return pageHost == savedHost || pageHost.EndsWith("." + savedHost, StringComparison.Ordinal);
+        return pageHost == savedHost || (!exactHost && pageHost.EndsWith("." + savedHost, StringComparison.Ordinal));
     }
 
     /// <summary>Host shown to the user and used as the title for logins saved from the browser.</summary>

@@ -1,7 +1,9 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Markup;
 using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 using Vault.Desktop.ViewModels;
@@ -40,7 +42,12 @@ public partial class App : Application
 
         base.OnStartup(e);
 
+        // WPF formats bound dates/numbers as en-US unless told otherwise; use the Windows locale.
+        FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
+            new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
+
         _settings = AppSettings.Load();
+        ScreenCaptureProtection.Install(_settings.ProtectFromScreenCapture);
         _session = new VaultSession();
         _clipboard = new ClipboardService { ClearAfter = TimeSpan.FromSeconds(_settings.ClipboardClearSeconds) };
         var dialogs = new DialogService(_clipboard);

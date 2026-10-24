@@ -25,6 +25,7 @@ public sealed partial class ItemEditorViewModel : ObservableObject
         _username = original?.Username ?? "";
         _password = original?.Password ?? "";
         _urls = string.Join(Environment.NewLine, original?.Urls ?? []);
+        _matchExactHost = original?.MatchExactHost ?? false;
         _notes = original?.Notes ?? "";
         _totpSecret = original?.TotpSecret ?? "";
     }
@@ -46,6 +47,9 @@ public sealed partial class ItemEditorViewModel : ObservableObject
 
     /// <summary>One website per line.</summary>
     [ObservableProperty] private string _urls;
+
+    /// <summary>Don't offer this login on subdomains (e.g. sites.google.com for a google.com login).</summary>
+    [ObservableProperty] private bool _matchExactHost;
 
     [ObservableProperty] private string _notes;
     [ObservableProperty] private string _totpSecret;
@@ -80,14 +84,13 @@ public sealed partial class ItemEditorViewModel : ObservableObject
             .Select(u => u.Contains("://", StringComparison.Ordinal) ? u : "https://" + u)
             .ToList();
 
-        var password = NullIfBlank(Password);
-        var item = (_original ?? new VaultItem { Title = "" }) with
+        // WithPassword keeps the previous password in the history when it changes.
+        var item = (_original ?? new VaultItem { Title = "" }).WithPassword(NullIfBlank(Password), DateTimeOffset.UtcNow) with
         {
             Title = Title.Trim(),
             Username = NullIfBlank(Username.Trim()),
-            Password = password,
-            PasswordChangedAt = _original is not null && _original.Password == password ? _original.PasswordChangedAt : DateTimeOffset.UtcNow,
             Urls = urls,
+            MatchExactHost = MatchExactHost,
             Notes = NullIfBlank(Notes),
             TotpSecret = NullIfBlank(totp),
         };

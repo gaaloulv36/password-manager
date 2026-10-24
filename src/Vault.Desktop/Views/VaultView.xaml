@@ -42,6 +42,10 @@
                         <TextBlock Text="Websites (one per line)" Style="{StaticResource FieldLabel}" />
                         <TextBox Text="{Binding Urls, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
                                  MinHeight="60" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" />
+                        <CheckBox IsChecked="{Binding MatchExactHost}" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="Only on these exact websites — not on their subdomains (e.g. a google.com login won't be offered on sites.google.com)" />
+                        </CheckBox>
 
                         <TextBlock Text="2FA secret (optional) — the setup key or otpauth:// link" Style="{StaticResource FieldLabel}" />
                         <TextBox Text="{Binding TotpSecret, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" />
@@ -222,7 +226,30 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <TextBlock Text="Only offered on these exact websites, not their subdomains" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.65" Margin="0,2,0,0"
+                                   Visibility="{Binding SelectedItem.MatchExactHost, Converter={StaticResource BoolToVisibility}}" />
                     </StackPanel>
+
+                    <!-- Previous passwords -->
+                    <Expander Margin="0,14,0,0" Visibility="{Binding SelectedItem.PasswordHistory.Count, Converter={StaticResource VisibleWhenSet}}">
+                        <Expander.Header>
+                            <TextBlock Text="{Binding SelectedItem.PasswordHistory.Count, StringFormat=Previous passwords ({0})}" />
+                        </Expander.Header>
+                        <ItemsControl ItemsSource="{Binding SelectedItem.PasswordHistory}" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,3">
+                                        <Button DockPanel.Dock="Right" Content="Copy" AutomationProperties.Name="Copy previous password"
+                                                Command="{Binding DataContext.CopyPreviousPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                        <TextBlock VerticalAlignment="Center" Opacity="0.8"
+                                                   Text="{Binding ReplacedAt, StringFormat=••••••••   replaced {0:d}}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
 
                     <!-- Notes -->
                     <StackPanel Visibility="{Binding SelectedItem.Notes, Converter={StaticResource VisibleWhenSet}}">

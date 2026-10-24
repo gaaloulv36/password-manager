@@ -31,6 +31,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         _updates = updates;
         _startWithWindows = StartupRegistration.IsEnabled;
+        _protectFromScreenCapture = settings.ProtectFromScreenCapture;
         _checkForUpdates = settings.CheckForUpdates;
         _updateStatus = updates.ReadyVersion is { } ready ? $"Version {ready} is downloaded and will be installed when you exit." : null;
         _settings = settings;
@@ -144,6 +145,15 @@ public sealed partial class SettingsViewModel : ObservableObject
     public string Version => _updates.CurrentVersion;
     public bool IsInstalled => _updates.IsInstalled;
     public bool IsUpdateReady => _updates.ReadyVersion is not null;
+
+    [ObservableProperty] private bool _protectFromScreenCapture;
+
+    partial void OnProtectFromScreenCaptureChanged(bool value)
+    {
+        _settings.ProtectFromScreenCapture = value;
+        _settings.Save();
+        ScreenCaptureProtection.SetEnabled(value);
+    }
 
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _checkForUpdates;

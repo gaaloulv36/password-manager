@@ -135,6 +135,13 @@ public sealed partial class VaultViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private void CopyPreviousPassword(PasswordHistoryEntry entry)
+    {
+        _clipboard.CopySecret(entry.Password);
+        ShowStatus($"Previous password copied — clipboard clears in {_clipboard.ClearAfter.TotalSeconds:0} s");
+    }
+
+    [RelayCommand]
     private void CopyTotp()
     {
         if (TotpCode is { Length: > 0 } code && char.IsDigit(code[0]))
