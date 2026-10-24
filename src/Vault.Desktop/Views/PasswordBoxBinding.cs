@@ -9,9 +9,11 @@ namespace Vault.Desktop.Views;
 /// </summary>
 public static class PasswordBoxBinding
 {
+    // Default is null, not "": the change callback below is what starts listening to the box, and binding an
+    // empty password (a new entry) must still count as a change — otherwise typing never reaches the view model.
     public static readonly DependencyProperty PasswordProperty = DependencyProperty.RegisterAttached(
         "Password", typeof(string), typeof(PasswordBoxBinding),
-        new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPasswordPropertyChanged));
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPasswordPropertyChanged));
 
     private static readonly DependencyProperty IsUpdatingProperty =
         DependencyProperty.RegisterAttached("IsUpdating", typeof(bool), typeof(PasswordBoxBinding));
