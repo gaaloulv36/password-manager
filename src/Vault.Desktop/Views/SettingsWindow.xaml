@@ -112,7 +112,7 @@
                                             CommandParameter="{Binding}" />
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{Binding BrowserName}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                        <TextBlock Text="{Binding PairedAt, StringFormat=Connected {0:d}}" Style="{StaticResource Hint}" Margin="0" />
+                                        <TextBlock Text="{Binding PairedAt, Converter={StaticResource LocalTime}, StringFormat=Connected {0:d}}" Style="{StaticResource Hint}" Margin="0" />
                                     </StackPanel>
                                 </DockPanel>
                             </DataTemplate>

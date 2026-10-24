@@ -17,6 +17,7 @@
             <conv:NullToVisibilityConverter x:Key="VisibleWhenSet" />
             <conv:NullToVisibilityConverter x:Key="VisibleWhenNull" Invert="True" />
             <conv:InverseBoolConverter x:Key="InverseBool" />
+            <conv:LocalTimeConverter x:Key="LocalTime" />
 
             <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
 

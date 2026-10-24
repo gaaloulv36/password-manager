@@ -120,6 +120,12 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] v1.0.0 released 2026-10-22 (GitHub Actions), installed by hand
 - [x] Auto-update confirmed on this PC: 0.9.0 → 1.0.1 (app + native host updated, connector path unchanged)
 
+### Phase 9a — Polish (v1.0.2) ✅
+- [x] Password history per entry (last 10, Copy), kept on editor and browser password changes
+- [x] "Only on these exact websites" per entry (enforced by the app)
+- [x] Screen-capture protection (on by default; window excluded from screenshots / screen sharing)
+- [x] Dates in local time and Windows locale; details pane scrolls
+
 ### Phase 5 — Hardening & extras (remaining)
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)
 - [ ] Have I Been Pwned check (k-anonymity API) + weak/reused password report

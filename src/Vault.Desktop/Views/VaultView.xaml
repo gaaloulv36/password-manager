@@ -165,6 +165,8 @@
                     </Style>
                 </Border.Style>
 
+                <!-- Long entries (notes, history) scroll inside the card instead of being cut off. -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,-12,0" Padding="0,0,12,0">
                 <StackPanel>
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
@@ -244,7 +246,7 @@
                                                 Command="{Binding DataContext.CopyPreviousPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}" />
                                         <TextBlock VerticalAlignment="Center" Opacity="0.8"
-                                                   Text="{Binding ReplacedAt, StringFormat=••••••••   replaced {0:d}}" />
+                                                   Text="{Binding ReplacedAt, Converter={StaticResource LocalTime}, StringFormat=••••••••   replaced {0:d}}" />
                                     </DockPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -261,6 +263,7 @@
                     <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.55" Margin="0,20,0,0"
                                Text="{Binding LastModified, StringFormat=Last modified {0}}" />
                 </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
 
