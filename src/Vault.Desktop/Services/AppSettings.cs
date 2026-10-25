@@ -22,6 +22,9 @@ public sealed class AppSettings
     /// <summary>Hide the app's windows from screenshots and screen sharing.</summary>
     public bool ProtectFromScreenCapture { get; set; } = true;
 
+    /// <summary>Install a downloaded update by itself while the vault is locked and the PC has been idle a while.</summary>
+    public bool InstallUpdatesWhenAway { get; set; } = true;
+
     /// <summary>Download new versions in the background (installed copies only).</summary>
     public bool CheckForUpdates { get; set; } = true;
 

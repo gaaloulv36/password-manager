@@ -29,6 +29,15 @@ public sealed class UpdateService
         }
     }
 
+    /// <summary>A new version finished downloading (argument: its version). Raised on the calling thread.</summary>
+    public event EventHandler<string>? UpdateReady;
+
+    /// <summary>
+    /// Raised right before the app is replaced. Velopack ends the process abruptly, so this is the
+    /// last chance to lock the vault, clear the clipboard and remove the tray icon.
+    /// </summary>
+    public event EventHandler? BeforeRestart;
+
     public bool IsInstalled => _manager is not null;
 
     public string CurrentVersion => _manager?.CurrentVersion?.ToString()
@@ -44,16 +53,20 @@ public sealed class UpdateService
         if (_manager is null) return null;
         var update = await _manager.CheckForUpdatesAsync();
         if (update is null) return null;
+        if (_ready is not null && _ready.TargetFullRelease.Version.Equals(update.TargetFullRelease.Version)) return ReadyVersion;
 
         await _manager.DownloadUpdatesAsync(update, progress);
         _ready = update;
+        UpdateReady?.Invoke(this, ReadyVersion!);
         return ReadyVersion;
     }
 
-    /// <summary>Installs the downloaded update now and starts the new version.</summary>
-    public void RestartToUpdate()
+    /// <summary>Installs the downloaded update now and starts the new version (in the tray if <paramref name="minimized"/>).</summary>
+    public void RestartToUpdate(bool minimized = false)
     {
-        if (_manager is not null && _ready is not null) _manager.ApplyUpdatesAndRestart(_ready.TargetFullRelease);
+        if (_manager is null || _ready is null) return;
+        BeforeRestart?.Invoke(this, EventArgs.Empty);
+        _manager.ApplyUpdatesAndRestart(_ready.TargetFullRelease, minimized ? [StartupRegistration.MinimizedArgument] : null);
     }
 
     /// <summary>If an update is waiting, install it silently once the app has exited.</summary>

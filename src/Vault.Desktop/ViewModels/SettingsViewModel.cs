@@ -33,6 +33,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _startWithWindows = StartupRegistration.IsEnabled;
         _protectFromScreenCapture = settings.ProtectFromScreenCapture;
         _checkForUpdates = settings.CheckForUpdates;
+        _installUpdatesWhenAway = settings.InstallUpdatesWhenAway;
         _updateStatus = updates.ReadyVersion is { } ready ? $"Version {ready} is downloaded and will be installed when you exit." : null;
         _settings = settings;
         _session = session;
@@ -157,6 +158,13 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _checkForUpdates;
+    [ObservableProperty] private bool _installUpdatesWhenAway;
+
+    partial void OnInstallUpdatesWhenAwayChanged(bool value)
+    {
+        _settings.InstallUpdatesWhenAway = value;
+        _settings.Save();
+    }
     [ObservableProperty] private string? _updateStatus;
 
     [ObservableProperty]

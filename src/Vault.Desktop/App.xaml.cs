@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Markup;
+using System.Windows.Threading;
 using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 using Vault.Desktop.ViewModels;
@@ -72,23 +73,89 @@ public partial class App : Application
         _hotkey = new GlobalHotkey(new WindowInteropHelper(window).Handle, HotkeyKey, control: true, alt: true, shift: false, ShowMainWindow);
 
         StartBrowserIntegration();
-        _ = CheckForUpdatesInBackgroundAsync();
+        StartUpdateSchedule();
     }
 
-    /// <summary>Quietly fetch a new version a little after startup; it's installed when the app exits (or on "Restart now").</summary>
-    private async Task CheckForUpdatesInBackgroundAsync()
+    // ---- Updates --------------------------------------------------------------------------------
+
+    private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(6);
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromHours(1);
+    private static readonly TimeSpan AwayBeforeAutoInstall = TimeSpan.FromMinutes(10);
+
+    private DispatcherTimer? _updateTimer;
+    private DateTime _nextUpdateCheck;
+    private bool _checkingForUpdate;
+    private bool _preparedForExit;
+
+    /// <summary>
+    /// The app lives in the tray for days, so it checks every few hours rather than only at startup. A downloaded
+    /// update is announced (tray notification, menu item, bar in the window) and installed on "Restart", on exit,
+    /// or by itself once the vault is locked and nobody has touched the PC for a while.
+    /// </summary>
+    private void StartUpdateSchedule()
     {
-        if (!_updates.IsInstalled || !_settings.CheckForUpdates) return;
-        await Task.Delay(TimeSpan.FromSeconds(15));
+        if (!_updates.IsInstalled) return;
+
+        _updates.UpdateReady += (_, version) =>
+        {
+            ((MainViewModel)MainWindow.DataContext).UpdateReadyVersion = version;
+            _tray?.ShowUpdateAvailable(version, () => _updates.RestartToUpdate());
+            _tray?.ShowHint("Update ready", $"Password Manager {version} is ready. Click here to restart and install it.",
+                () => _updates.RestartToUpdate());
+        };
+        _updates.BeforeRestart += (_, _) => PrepareForExit();
+
+        _nextUpdateCheck = DateTime.UtcNow.AddSeconds(15);
+        _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+        _updateTimer.Tick += async (_, _) => await UpdateTickAsync();
+        _updateTimer.Start();
+    }
+
+    private async Task UpdateTickAsync()
+    {
+        if (_updates.ReadyVersion is not null)
+        {
+            // Nothing to interrupt: vault locked, PC idle, no window waiting for an answer.
+            if (_settings.InstallUpdatesWhenAway && _session is { IsUnlocked: false } && !HasOpenDialogs()
+                && AutoLockService.GetSystemIdleTime() >= AwayBeforeAutoInstall)
+                _updates.RestartToUpdate(minimized: true);
+            return;
+        }
+
+        if (!_settings.CheckForUpdates || _checkingForUpdate || DateTime.UtcNow < _nextUpdateCheck) return;
+        _checkingForUpdate = true;
         try
         {
-            if (await _updates.CheckAndDownloadAsync() is { } version)
-                _tray?.ShowHint("Update ready", $"Password Manager {version} will be installed when you exit, or restart it from Settings.");
+            await _updates.CheckAndDownloadAsync();
+            _nextUpdateCheck = DateTime.UtcNow + CheckInterval;
         }
         catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or IOException or TaskCanceledException or InvalidOperationException)
         {
-            // Offline or GitHub unavailable: try again next start.
+            _nextUpdateCheck = DateTime.UtcNow + RetryInterval; // offline or GitHub unavailable
         }
+        finally
+        {
+            _checkingForUpdate = false;
+        }
+    }
+
+    private bool HasOpenDialogs() => Windows.OfType<Window>().Any(w => w != MainWindow && w.IsVisible);
+
+    /// <summary>Shared by normal exit and update restarts (which end the process without running OnExit).</summary>
+    private void PrepareForExit()
+    {
+        if (_preparedForExit) return; // an update restart that failed still exits normally later
+        _preparedForExit = true;
+        _updateTimer?.Stop();
+        _bridge?.Dispose();
+        _hotkey?.Dispose();
+        _tray?.Dispose();
+        _tray = null;
+        _autoLock?.Dispose();
+        _session?.Lock();
+        _clipboard?.ClearIfOurs();
+        _instance?.Dispose();
+        _instance = null;
     }
 
     private void StartBrowserIntegration()
@@ -130,13 +197,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        _bridge?.Dispose();
-        _hotkey?.Dispose();
-        _tray?.Dispose();
-        _autoLock?.Dispose();
-        _session?.Lock();
-        _clipboard?.ClearIfOurs();
-        _instance?.Dispose();
+        PrepareForExit();
         _updates.ApplyOnExit();
         base.OnExit(e);
     }

@@ -55,7 +55,8 @@ public sealed class AutoLockService : IDisposable
     // SystemEvents fire on a background thread.
     private void RaiseLockRequested() => _dispatcher.Invoke(() => LockRequested?.Invoke(this, EventArgs.Empty));
 
-    private static TimeSpan GetSystemIdleTime()
+    /// <summary>Time since the last keyboard/mouse input anywhere on the PC.</summary>
+    public static TimeSpan GetSystemIdleTime()
     {
         var info = new LastInputInfo { Size = (uint)Marshal.SizeOf<LastInputInfo>() };
         if (!GetLastInputInfo(ref info)) return TimeSpan.Zero;

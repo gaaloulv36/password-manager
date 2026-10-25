@@ -1,5 +1,6 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Vault.Desktop.Browser;
 using Vault.Desktop.Services;
 
@@ -18,6 +19,19 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableObject _currentPage = null!;
+
+    /// <summary>Set when an update has been downloaded: shows the "restart to update" bar.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UpdateMessage))]
+    private string? _updateReadyVersion;
+
+    public string UpdateMessage => $"Password Manager {UpdateReadyVersion} is ready to install.";
+
+    [RelayCommand]
+    private void RestartToUpdate() => _updates.RestartToUpdate();
+
+    [RelayCommand]
+    private void DismissUpdate() => UpdateReadyVersion = null;
 
     public MainViewModel(VaultSession session, AppSettings settings, ClipboardService clipboard, DialogService dialogs, AutoLockService autoLock, PairingStore pairings, UpdateService updates)
     {

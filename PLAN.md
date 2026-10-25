@@ -126,6 +126,13 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Screen-capture protection (on by default; window excluded from screenshots / screen sharing)
 - [x] Dates in local time and Windows locale; details pane scrolls
 
+### Updater improvements (v1.0.4) ✅
+- [x] Checks every 6 h (not only at startup); retries after 1 h when offline
+- [x] Update ready → clickable tray notification, "Restart to update" in tray menu, bar at the top of the window
+- [x] Installs by itself when the vault is locked and the PC has been idle 10 min (restarts to the tray); setting to turn off
+- [x] Clean restart: vault locked, clipboard cleared, tray icon removed before Velopack replaces the app
+- [x] XAML smoke test: every window/page is built in CI
+
 ### Phase 5 — Hardening & extras (remaining)
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)
 - [ ] Have I Been Pwned check (k-anonymity API) + weak/reused password report
