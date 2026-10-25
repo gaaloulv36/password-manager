@@ -194,3 +194,7 @@ The app shows a preview before importing and flags duplicates.
 ## License
 
 [MIT](LICENSE): free to use, change and share, as long as the copyright notice is kept.
+
+## Code signing
+
+See the [code signing policy](CODE_SIGNING.md) (what is signed, how releases are made, and what the app sends over the network). Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org). Application in progress; releases are unsigned until approved.

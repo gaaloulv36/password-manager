@@ -1,13 +1,21 @@
 name: Release
 
-# Push a tag like v1.0.0 to build, test and publish a release.
+# Push a tag like v1.0.0 to build, test, sign (when SignPath is set up) and publish a release.
 # Installed copies of the app pick it up automatically (Velopack reads GitHub Releases).
+# "Run workflow" (workflow_dispatch) does a dry run: everything except publishing.
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch:
 
 permissions:
   contents: write
+  actions: read # SignPath reads the uploaded artifacts
+
+env:
+  # Signing switches on by itself once the SIGNPATH_API_TOKEN secret exists (see CODE_SIGNING.md).
+  SIGN: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
   release:
@@ -23,23 +31,85 @@ jobs:
         with:
           node-version: 22
 
-      - name: Version from tag
+      - name: Version
         id: version
         shell: pwsh
-        run: echo "value=$('${{ github.ref_name }}'.TrimStart('v'))" >> $env:GITHUB_OUTPUT
+        run: |
+          $version = if ($env:DRY_RUN -eq 'true') { '0.0.0-dryrun.${{ github.run_number }}' } else { '${{ github.ref_name }}'.TrimStart('v') }
+          echo "value=$version" >> $env:GITHUB_OUTPUT
 
-      - name: Tests
+      - name: Tests (including fuzz tests)
         run: |
           dotnet test --nologo
           node --test extension/test/protocol.test.mjs
+
+      - name: Publish app
+        shell: pwsh
+        run: ./build/pack.ps1 -Version ${{ steps.version.outputs.value }} -Stage Publish
+
+      # ---- Signing the app's own files (SignPath) ----
+      - name: Upload app for signing
+        if: env.SIGN == 'true'
+        id: upload-app
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-unsigned
+          path: artifacts/publish/
+
+      - name: Sign app
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'password-manager' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.upload-app.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: artifacts/publish
 
       - name: Build installer and extension
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./build/pack.ps1 -Version ${{ steps.version.outputs.value }} -GitHubToken $env:GITHUB_TOKEN
+        # A dry run has a lower version than the last release, so it skips fetching that release for a delta.
+        run: ./build/pack.ps1 -Version ${{ steps.version.outputs.value }} -Stage Pack -GitHubToken $(if ($env:DRY_RUN -eq 'true') { '' } else { $env:GITHUB_TOKEN })
+
+      # ---- Signing the installer (SignPath) ----
+      - name: Upload installer for signing
+        if: env.SIGN == 'true'
+        id: upload-setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-unsigned
+          path: artifacts/installer/PasswordManager-win-Setup.exe
+
+      - name: Sign installer
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'password-manager' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: setup
+          github-artifact-id: ${{ steps.upload-setup.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: artifacts/installer
+
+      - name: Keep dry-run output
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dry-run-${{ steps.version.outputs.value }}
+          path: |
+            artifacts/installer/
+            artifacts/extension/
+          retention-days: 3
 
       - name: Publish release
+        if: env.DRY_RUN != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

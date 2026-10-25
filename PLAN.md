@@ -137,7 +137,11 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [ ] Windows Hello quick unlock (vault key protected with `KeyCredentialManager`/TPM)
 - [ ] Have I Been Pwned check (k-anonymity API) + weak/reused password report
 - [x] Security review 1 (2026-10-22): 7 findings fixed, see SECURITY.md
-- [ ] Vault parser fuzzing; external review of `Vault.Core`
+- [x] Mutation fuzz tests in CI (vault file, imports, browser protocol, handler leak check): 4 robustness bugs fixed
+- [x] MIT license; code signing policy (CODE_SIGNING.md) + SignPath steps in release workflow (inactive until approved)
+- [ ] SignPath Foundation application approved → first signed release
+- [ ] Decide: libsodium Argon2 (audited, but single-lane: ~0.27 s slower unlock, Konscious still needed for old backups)
+- [ ] External review of `Vault.Core`
 - [ ] Installer (MSIX or Velopack) + code signing
 
 ## Rules for myself
