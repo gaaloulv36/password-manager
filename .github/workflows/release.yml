@@ -123,3 +123,5 @@ jobs:
             --releaseName "Password Manager $version" `
             --publish
           gh release upload "v$version" (Get-ChildItem artifacts/extension/*.zip).FullName --clobber
+          # The release page is the download page: it must link the code signing policy (SignPath Foundation terms).
+          gh release edit "v$version" --notes-file build/release-notes.md

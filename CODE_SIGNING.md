@@ -37,3 +37,14 @@ This program will not transfer any information to other networked systems unless
 | Websites you open | Only when you click a website link in the app | Nothing beyond opening the link in your browser |
 
 There is no telemetry, no analytics and no account. Your vault file is synced only by your own sync service (for example OneDrive), never by this app.
+
+## Changes to your system
+The app installs and runs for your Windows account only, with no admin rights. It changes these settings, and **uninstalling removes all of them**:
+
+| Change | Why | When |
+|---|---|---|
+| Installs to `%LOCALAPPDATA%\PasswordManager` with a Start menu shortcut | the app itself | on install |
+| Registry: `HKCU\Software\{Google\Chrome, Microsoft\Edge, Chromium, BraveSoftware\Brave-Browser, Mozilla}\NativeMessagingHosts\com.passwordmanager.host` | lets the browser extension talk to the app ([details](extension/README.md)) | on every start (kept up to date) |
+| Registry: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\PasswordManager` | "Start with Windows" | only if you turn it on in Settings |
+
+Your vault file, settings (`%APPDATA%\PasswordManager`) and backups (`%LOCALAPPDATA%\PasswordManager\Backups`) are kept on uninstall so you don't lose data. The [User Guide](docs/USER-GUIDE.md#13-updates-and-uninstalling) explains how to remove them too.
