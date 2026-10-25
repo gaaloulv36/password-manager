@@ -153,7 +153,11 @@
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                 <StackPanel>
                     <TextBlock Text="App &amp; updates" Style="{StaticResource SectionTitle}" />
-                    <TextBlock Text="{Binding Version, StringFormat=Version {0}}" Style="{StaticResource Hint}" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="📖 User guide" Command="{Binding OpenUserGuideCommand}"
+                                ToolTip="Step-by-step help: setup, browser extension, import, sync, backups, troubleshooting" />
+                        <TextBlock Text="{Binding Version, StringFormat=Version {0}}" Style="{StaticResource Hint}" VerticalAlignment="Center" />
+                    </DockPanel>
 
                     <StackPanel Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}">
                         <CheckBox Content="Start with Windows (in the notification area)" IsChecked="{Binding StartWithWindows}" Margin="0,12,0,0" />

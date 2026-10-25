@@ -205,6 +205,11 @@ public sealed partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void RestartToUpdate() => _updates.RestartToUpdate();
 
+    public const string UserGuideUrl = UpdateService.RepositoryUrl + "/blob/main/docs/USER-GUIDE.md";
+
+    [RelayCommand]
+    private static void OpenUserGuide() => Process.Start(new ProcessStartInfo(UserGuideUrl) { UseShellExecute = true });
+
     // ---- Windows Hello ----
 
     [ObservableProperty] private bool _isHelloAvailable;

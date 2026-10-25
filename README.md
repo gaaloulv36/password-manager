@@ -4,6 +4,8 @@ A personal, offline-first password manager for Windows with a companion browser 
 
 > **Status:** in active development. See [PLAN.md](PLAN.md) for what is built so far and what is next.
 
+📖 **New here? Read the [User Guide](docs/USER-GUIDE.md).** It covers installing, creating your vault, the browser extension, importing your passwords, using several PCs, backups and troubleshooting, step by step.
+
 ---
 
 ## Overview
@@ -22,7 +24,7 @@ A personal, offline-first password manager for Windows with a companion browser 
 2. Windows SmartScreen may warn that the publisher is unknown (the installer isn't code-signed yet). Choose **More info → Run anyway**.
 3. The app installs for your Windows account, adds a Start menu shortcut, and opens.
 
-**Updates** download in the background and install when you exit the app. You can also install them straight away from **Settings → App & updates**, where you can turn on **Start with Windows**. Uninstall from **Windows Settings → Apps**. Uninstalling keeps your vault file, settings and backups.
+**Updates** are checked every 6 hours and download in the background. They install when you click **Restart to update**, when you exit, or by themselves while the vault is locked and you are away. You can also install them straight away from **Settings → App & updates**, where you can turn on **Start with Windows**. Uninstall from **Windows Settings → Apps**. Uninstalling keeps your vault file, settings and backups.
 
 ### Creating a vault
 1. On first launch, choose **Create new vault**.
@@ -33,7 +35,7 @@ A personal, offline-first password manager for Windows with a companion browser 
 > ⚠️ If you forget your master password, your vault **cannot** be opened by anyone, including you. Write it down and keep it somewhere safe.
 
 ### Opening an existing vault
-1. Choose **Open vault** and select the vault file. This is how you open the same vault on a second PC.
+1. Choose **Open an existing vault…** and select the vault file. This is how you open the same vault on a second PC.
 2. Enter your master password.
 3. If the password is wrong, the app says so and the vault stays locked.
 
@@ -72,7 +74,7 @@ You can:
 
 Create strong random passwords from the entry editor or the toolbar.
 
-- **Length:** 4 to 128 characters (default 20).
+- **Length:** 8 to 64 characters (default 20).
 - **Character types:** lowercase, uppercase, digits, symbols. Turn each on or off.
 - **Avoid look-alike characters** (`I l 1 O 0 o`) for passwords you have to type by hand.
 - Every enabled character type is guaranteed to appear at least once.
@@ -109,7 +111,7 @@ Optionally, **Windows Hello** (PIN, fingerprint or face) can unlock the vault on
 There is no server. Sync works through a file-sync service you already use:
 
 1. Save or move the vault file into a synced folder, e.g. OneDrive.
-2. On your other PC, choose **Open vault** and pick the same file.
+2. On your other PC, choose **Open an existing vault…** and pick the same file.
 
 What happens next:
 - **Changes from another PC show up automatically.** The app notices when the file changes and reloads it.
@@ -122,7 +124,7 @@ What happens next:
 
 ## Browser extension
 
-The extension works in **Chrome, Edge, Opera and Firefox**, together with the desktop app, which must be running. Installation steps are in [extension/README.md](extension/README.md).
+The extension works in **Chrome, Edge, Opera, Opera GX, Brave and Firefox**, together with the desktop app, which must be running. Installation steps are in [extension/README.md](extension/README.md).
 
 ### First-time pairing
 1. Install the extension and click its icon, then **Connect**.
