@@ -4,5 +4,7 @@
     <Version>0.9.0</Version>
     <Authors>gaaloulv36</Authors>
     <Product>Password Manager</Product>
+    <Copyright>Copyright (c) 2026 gaaloulv36</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

@@ -188,3 +188,9 @@ The app shows a preview before importing and flags duplicates.
 - Use a long master password you don't use anywhere else. A passphrase of 5 or more random words works well.
 - Keep an **encrypted backup** somewhere other than your sync folder.
 - Turn on two-factor authentication on important accounts. You can store the 2FA secret in the entry.
+
+---
+
+## License
+
+[MIT](LICENSE): free to use, change and share, as long as the copyright notice is kept.
