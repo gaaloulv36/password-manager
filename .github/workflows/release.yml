@@ -14,7 +14,8 @@ permissions:
 
 env:
   # Signing switches on by itself once the SIGNPATH_API_TOKEN secret exists (see CODE_SIGNING.md).
-  SIGN: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+  # Dry runs are never signed: SignPath Foundation only signs builds that are actually released.
+  SIGN: ${{ secrets.SIGNPATH_API_TOKEN != '' && github.event_name == 'push' }}
   DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
