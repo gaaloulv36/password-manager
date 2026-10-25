@@ -140,7 +140,8 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Mutation fuzz tests in CI (vault file, imports, browser protocol, handler leak check): 4 robustness bugs fixed
 - [x] MIT license; code signing policy (CODE_SIGNING.md) + SignPath steps in release workflow (inactive until approved)
 - [ ] SignPath Foundation application approved → first signed release
-- [ ] Decide: libsodium Argon2 (audited, but single-lane: ~0.27 s slower unlock, Konscious still needed for old backups)
+- [x] libsodium Argon2: evaluated, skipped (single-lane: ~0.27 s slower unlock, no strength gain, Konscious still needed for old backups); revisit if a review flags Konscious
+- [x] v1.0.6: fuzz-found robustness fixes released (first release through the restructured, signing-ready pipeline)
 - [ ] External review of `Vault.Core`
 - [ ] Installer (MSIX or Velopack) + code signing
 
