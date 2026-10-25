@@ -17,7 +17,13 @@ public static class VaultFileStore
     public static VaultDocument Load(string path)
     {
         using var stream = File.OpenRead(path);
-        if (stream.Length > MaxFileSize) throw new InvalidDataException("The file is too large to be a vault.");
+        return Read(stream);
+    }
+
+    /// <inheritdoc cref="Load"/>
+    public static VaultDocument Read(Stream stream)
+    {
+        if (stream.CanSeek && stream.Length > MaxFileSize) throw new InvalidDataException("The file is too large to be a vault.");
 
         var document = JsonSerializer.Deserialize<VaultDocument>(stream, JsonOptions)
             ?? throw new InvalidDataException("Vault file is empty.");

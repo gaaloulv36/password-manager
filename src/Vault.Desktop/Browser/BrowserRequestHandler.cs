@@ -39,7 +39,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
         JsonObject reply;
         try
         {
-            reply = (string?)message["type"] switch
+            reply = Text(message["type"]) switch
             {
                 "pair-request" => StartPairing(connection, message),
                 "pair-wait" => await WaitForPairingAsync(connection),
@@ -51,14 +51,14 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
         {
             reply = new JsonObject { ["type"] = "error", ["error"] = "bad-request" };
         }
-        reply["id"] = (string?)message["id"];
+        reply["id"] = Text(message["id"]);
         return reply;
     }
 
     private JsonObject StartPairing(BrowserConnection connection, JsonObject message)
     {
-        var extensionKey = Convert.FromBase64String((string?)message["extPublicKey"] ?? "");
-        var browser = ((string?)message["browser"])?.Trim() is { Length: > 0 } name ? name[..Math.Min(name.Length, 40)] : "Browser";
+        var extensionKey = Convert.FromBase64String(Text(message["extPublicKey"]) ?? "");
+        var browser = (Text(message["browser"]))?.Trim() is { Length: > 0 } name ? name[..Math.Min(name.Length, 40)] : "Browser";
 
         using var handshake = new PairingHandshake();
         var (messageKey, code) = handshake.Complete(extensionKey);
@@ -85,7 +85,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
 
     private async Task<JsonObject> HandleEncryptedAsync(JsonObject message)
     {
-        var pairingId = (string?)message["pairingId"] ?? "";
+        var pairingId = Text(message["pairingId"]) ?? "";
         var key = pairings.GetKey(pairingId);
         if (key is null) return new JsonObject { ["type"] = "not-paired" };
 
@@ -94,7 +94,8 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
             JsonObject request;
             try
             {
-                request = JsonNode.Parse(BrowserProtocol.Open(key, pairingId, BrowserProtocol.ToApp, (string?)message["data"] ?? ""))!.AsObject();
+                request = JsonNode.Parse(BrowserProtocol.Open(key, pairingId, BrowserProtocol.ToApp, Text(message["data"]) ?? "")) as JsonObject
+                    ?? throw new JsonException("The request isn't a JSON object.");
             }
             catch (CryptographicException)
             {
@@ -102,7 +103,7 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
             }
 
             var response = IsReplay(request) ? Fail("replayed") : await HandleRequestAsync(request);
-            response["id"] = (string?)request["id"];
+            response["id"] = Text(request["id"]);
             return new JsonObject
             {
                 ["type"] = "encrypted",
@@ -123,14 +124,16 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
         foreach (var expired in _seenRequestIds.Where(e => now - e.Value > MaxClockSkew * 2).Select(e => e.Key).ToList())
             _seenRequestIds.Remove(expired);
 
-        var id = (string?)request["id"];
-        var sent = DateTimeOffset.FromUnixTimeMilliseconds((long?)request["ts"] ?? 0);
-        return id is null || (now - sent).Duration() > MaxClockSkew || !_seenRequestIds.TryAdd(id, now);
+        var id = Text(request["id"]);
+        var ts = request["ts"] is JsonValue value && value.TryGetValue<long>(out var ms) ? ms : 0;
+        var nowMs = now.ToUnixTimeMilliseconds();
+        // Compare in milliseconds: an absurd timestamp is simply stale (FromUnixTimeMilliseconds would throw).
+        return id is null || Math.Abs((decimal)nowMs - ts) > (decimal)MaxClockSkew.TotalMilliseconds || !_seenRequestIds.TryAdd(id, now);
     }
 
     private Task<JsonObject> HandleRequestAsync(JsonObject request)
     {
-        var type = (string?)request["type"];
+        var type = Text(request["type"]);
         if (type == "status")
             return Task.FromResult(Ok(new JsonObject { ["locked"] = !session.IsUnlocked, ["vaultName"] = System.IO.Path.GetFileNameWithoutExtension(session.Path) }));
         if (type == "show-app")
@@ -140,14 +143,14 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
         }
 
         if (!session.IsUnlocked) return Task.FromResult(Fail("locked"));
-        var url = (string?)request["url"] ?? "";
+        var url = Text(request["url"]) ?? "";
 
         return Task.FromResult(type switch
         {
             "get-logins" => GetLogins(url),
-            "get-credential" => GetCredential(url, (string?)request["itemId"]),
-            "check-login" => CheckLogin(url, (string?)request["username"], (string?)request["password"]),
-            "save-login" => SaveLogin(url, (string?)request["username"], (string?)request["password"]),
+            "get-credential" => GetCredential(url, Text(request["itemId"])),
+            "check-login" => CheckLogin(url, Text(request["username"]), Text(request["password"])),
+            "save-login" => SaveLogin(url, Text(request["username"]), Text(request["password"])),
             _ => Fail("unknown-type"),
         });
     }
@@ -209,6 +212,13 @@ public sealed class BrowserRequestHandler(VaultSession session, PairingStore pai
 
     private VaultItem? FindLogin(string url, string? username) =>
         MatchingItems(url).FirstOrDefault(i => string.Equals(i.Username ?? "", username ?? "", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// The field as a string, or null if it's missing or any other JSON type. Never throws: a cast like
+    /// (string?)node does when the type is wrong (found by fuzzing).
+    /// </summary>
+    private static string? Text(JsonNode? node) =>
+        node is JsonValue value && value.GetValueKind() == JsonValueKind.String ? value.GetValue<string>() : null;
 
     private static JsonObject Ok(JsonObject? body = null)
     {

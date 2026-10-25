@@ -59,7 +59,8 @@ public static class Csv
     private static string Escape(string? value)
     {
         value ??= "";
-        return value.IndexOfAny([',', '"', '\n', '\r']) >= 0 || value != value.Trim()
+        // A leading U+FEFF must be quoted too, or a reader takes it for the file's byte-order mark and drops it (found by fuzzing).
+        return value.IndexOfAny([',', '"', '\n', '\r']) >= 0 || value != value.Trim() || value.StartsWith('﻿')
             ? $"\"{value.Replace("\"", "\"\"", StringComparison.Ordinal)}\""
             : value;
     }

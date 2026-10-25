@@ -13,13 +13,18 @@ public sealed record BrowserPairing(string Id, string BrowserName, DateTimeOffse
 public sealed class PairingStore
 {
     private static readonly byte[] Entropy = "pm-browser-pairing"u8.ToArray();
-    private static readonly string FilePath = Path.Combine(
+    private static readonly string DefaultFilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PasswordManager", "browser-pairings.json");
 
+    private readonly string FilePath;
     private readonly List<BrowserPairing> _pairings;
 
-    public PairingStore()
+    public PairingStore() : this(DefaultFilePath) { }
+
+    /// <summary>For tests: keep pairings in another file.</summary>
+    public PairingStore(string filePath)
     {
+        FilePath = filePath;
         try
         {
             _pairings = File.Exists(FilePath)

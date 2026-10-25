@@ -17,8 +17,9 @@ public static class UrlMatcher
         if (!saved.IsDefaultPort && saved.Port != page.Port) return false;
 
         // IdnHost is the punycode form, so look-alikes such as "gіthub.com" (Cyrillic і) never equal "github.com".
-        var savedHost = Normalize(saved.IdnHost);
-        var pageHost = Normalize(page.IdnHost);
+        if (!TryIdnHost(saved, out var savedIdn) || !TryIdnHost(page, out var pageIdn)) return false;
+        var savedHost = Normalize(savedIdn);
+        var pageHost = Normalize(pageIdn);
         if (!IsSpecificHost(savedHost)) return false;
 
         return pageHost == savedHost || (!exactHost && pageHost.EndsWith("." + savedHost, StringComparison.Ordinal));
@@ -35,6 +36,21 @@ public static class UrlMatcher
         var candidate = url.Trim();
         if (!candidate.Contains("://", StringComparison.Ordinal)) candidate = "https://" + candidate;
         return Uri.TryCreate(candidate, UriKind.Absolute, out uri!) && uri.Host.Length > 0;
+    }
+
+    /// <summary>A host that isn't valid IDN (found by fuzzing) is simply not a match, never an exception.</summary>
+    private static bool TryIdnHost(Uri uri, out string host)
+    {
+        try
+        {
+            host = uri.IdnHost;
+            return true;
+        }
+        catch (UriFormatException)
+        {
+            host = "";
+            return false;
+        }
     }
 
     private static string Normalize(string host)
