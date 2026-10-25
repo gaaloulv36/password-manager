@@ -4,7 +4,8 @@
     <Grid>
         <Border Style="{StaticResource Card}" Width="420" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="🔒" FontSize="40" HorizontalAlignment="Center" />
+                <Image Source="{StaticResource VaultForgeLogo}" Width="64" Height="64" HorizontalAlignment="Center"
+                       AutomationProperties.Name="VaultForge logo" />
                 <TextBlock Text="{Binding VaultName}" Style="{StaticResource TitleTextBlockStyle}"
                            HorizontalAlignment="Center" Margin="0,8,0,2" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding VaultPath}" ToolTip="{Binding VaultPath}" Style="{StaticResource CaptionTextBlockStyle}"
@@ -26,10 +27,21 @@
                 <Button Content="Restore from a backup…" Command="{Binding RestoreFromBackupCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"
                         Visibility="{Binding IsFileDamaged, Converter={StaticResource BoolToVisibility}}" />
 
+                <!-- One primary (Ember) action per screen: Unlock, unless Windows Hello above is the primary one. -->
                 <Button Command="{Binding UnlockCommand}" AutomationProperties.Name="Unlock" IsDefault="True"
-                        HorizontalAlignment="Stretch" Padding="12,8" Margin="0,16,0,0">
+                        Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold"
+                        HorizontalAlignment="Stretch" Padding="12,10" Margin="0,16,0,0"
+                        Visibility="{Binding CanUseHello, Converter={StaticResource InverseBoolToVisibility}}">
                     <Grid>
                         <TextBlock Text="Unlock" Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <TextBlock Text="Unlocking…" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Button>
+                <Button Command="{Binding UnlockCommand}" AutomationProperties.Name="Unlock" IsDefault="True"
+                        HorizontalAlignment="Stretch" Padding="12,10" Margin="0,16,0,0"
+                        Visibility="{Binding CanUseHello, Converter={StaticResource BoolToVisibility}}">
+                    <Grid>
+                        <TextBlock Text="Unlock with password" Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibility}}" />
                         <TextBlock Text="Unlocking…" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
                     </Grid>
                 </Button>

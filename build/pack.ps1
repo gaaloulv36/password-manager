@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Builds the Windows installer (Velopack) and the browser-extension zips.
+  Builds the VaultForge installer (Velopack) and the browser-extension zips.
 .DESCRIPTION
   Stages (CI signs the files between them; locally just use the default "All"):
     Publish  self-contained app + native host into artifacts/publish
@@ -12,6 +12,9 @@ param(
     [Parameter(Mandatory)] [string] $Version,
     [ValidateSet("All", "Publish", "Pack")] [string] $Stage = "All",
     [string] $Runtime = "win-x64",
+    # Own update channel (releases.vaultforge.json), so installs of the old "Password Manager" (channel "win")
+    # never mistake a VaultForge release for one of their updates.
+    [string] $Channel = "vaultforge",
     # In CI: lets vpk fetch the previous release so it can build a small delta update.
     [string] $GitHubToken
 )
@@ -25,7 +28,7 @@ if ($Stage -in "All", "Publish") {
     Remove-Item $publish -Recurse -Force -ErrorAction SilentlyContinue
     # The app and the native host are published self-contained into the same folder: both run on the bundled
     # .NET runtime, so nothing needs to be installed on the user's PC.
-    foreach ($project in "src/Vault.Desktop", "src/Vault.NativeHost") {
+    foreach ($project in "src/VaultForge.Desktop", "src/VaultForge.NativeHost") {
         dotnet publish (Join-Path $root $project) -c Release -r $Runtime --self-contained -o $publish -p:Version=$Version --nologo
         if ($LASTEXITCODE) { throw "publish $project failed" }
     }
@@ -35,16 +38,17 @@ if ($Stage -in "All", "Pack") {
     Remove-Item $installer, $extension -Recurse -Force -ErrorAction SilentlyContinue
     dotnet tool restore
     if ($GitHubToken) {
-        dotnet vpk download github --repoUrl https://github.com/gaaloulv36/password-manager --token $GitHubToken --outputDir $installer
+        dotnet vpk download github --repoUrl https://github.com/gaaloulv36/vaultforge --token $GitHubToken --channel $Channel --outputDir $installer
     }
     dotnet vpk pack `
-        --packId PasswordManager `
+        --packId VaultForge `
+        --channel $Channel `
         --packVersion $Version `
         --packDir $publish `
-        --mainExe Vault.Desktop.exe `
-        --packTitle "Password Manager" `
-        --packAuthors gaaloulv36 `
-        --icon (Join-Path $root "src/Vault.Desktop/Assets/app.ico") `
+        --mainExe VaultForge.exe `
+        --packTitle "VaultForge" `
+        --packAuthors "Forge Studio" `
+        --icon (Join-Path $root "src/VaultForge.Desktop/Assets/VaultForge.ico") `
         --outputDir $installer
     if ($LASTEXITCODE) { throw "vpk pack failed" }
 
@@ -52,7 +56,7 @@ if ($Stage -in "All", "Pack") {
     node (Join-Path $root "extension/build.mjs")
     New-Item -ItemType Directory -Force $extension | Out-Null
     foreach ($target in "chromium", "firefox") {
-        Compress-Archive -Path (Join-Path $root "extension/dist/$target/*") -DestinationPath (Join-Path $extension "password-manager-extension-$target-$Version.zip") -Force
+        Compress-Archive -Path (Join-Path $root "extension/dist/$target/*") -DestinationPath (Join-Path $extension "vaultforge-extension-$target-$Version.zip") -Force
     }
 
     Get-ChildItem $installer, $extension -File | Format-Table Name, @{ n = "MB"; e = { [math]::Round($_.Length / 1MB, 1) } }

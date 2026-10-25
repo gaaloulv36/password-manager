@@ -77,39 +77,39 @@
     if (event.isTrusted) handler(event);
   };
 
-  const host = document.createElement('password-manager-ui');
+  const host = document.createElement('vaultforge-ui');
   host.style.cssText = 'all: initial; position: absolute; top: 0; left: 0; z-index: 2147483647;';
   const root = host.attachShadow({ mode: 'closed' });
   root.innerHTML = `
     <style>
+      /* Forge Studio brand (dark-only): Charcoal surfaces, Ash text, Ember primary, VaultForge blue accent. */
       :host { all: initial; }
-      * { box-sizing: border-box; font: 13px/1.35 "Segoe UI", system-ui, sans-serif; }
-      .icon { position: absolute; width: 22px; height: 22px; border: 0; border-radius: 6px; padding: 3px; cursor: pointer;
-              background: #2563eb; display: none; }
-      .icon svg { width: 16px; height: 16px; display: block; }
-      .menu, .banner { position: absolute; display: none; min-width: 260px; max-width: 360px; background: #fff; color: #1f2937;
-              border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); overflow: hidden; }
-      .menu button.item { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 8px 12px; cursor: pointer; color: inherit; }
-      .menu button.item:hover, .menu button.item:focus { background: #eff6ff; outline: none; }
-      .title { font-weight: 600; } .sub { color: #6b7280; font-size: 12px; }
-      .note { padding: 10px 12px; color: #374151; }
+      * { box-sizing: border-box; font: 13px/1.4 "Inter", "Segoe UI", system-ui, sans-serif; }
+      .icon { position: absolute; width: 22px; height: 22px; border: 0; border-radius: 6px; padding: 2px; cursor: pointer;
+              background: #22252D; display: none; box-shadow: 0 0 0 1px #353944; }
+      .icon:hover { box-shadow: 0 0 0 1px #3D8BFF; }
+      .icon svg { width: 18px; height: 18px; display: block; }
+      .menu, .banner { position: absolute; display: none; min-width: 260px; max-width: 360px; background: #1C1F26; color: #F4F1EC;
+              border: 1px solid #2A2E37; border-radius: 12px; box-shadow: 0 14px 40px -12px rgba(0,0,0,.6); overflow: hidden; }
+      .menu button.item { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 9px 14px; cursor: pointer; color: inherit; }
+      .menu button.item:hover, .menu button.item:focus { background: #22252D; outline: none; box-shadow: inset 2px 0 0 #3D8BFF; }
+      .title { font-weight: 600; } .sub { color: #A3A7B0; font-size: 12px; }
+      .note { padding: 10px 14px; color: #C9CCD3; }
       .banner { position: fixed; top: 16px; right: 16px; padding: 14px 16px; }
-      .banner .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
-      .banner button { border: 1px solid #d1d5db; background: #fff; border-radius: 6px; padding: 5px 12px; cursor: pointer; color: #1f2937; }
-      .banner button.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
-      @media (prefers-color-scheme: dark) {
-        .menu, .banner { background: #1f2937; color: #f3f4f6; border-color: #374151; }
-        .menu button.item:hover, .menu button.item:focus { background: #374151; }
-        .sub { color: #9ca3af; } .note { color: #d1d5db; }
-        .banner button { background: #374151; border-color: #4b5563; color: #f3f4f6; }
-      }
+      .banner .brand { font: 700 12px/1 "Space Grotesk", "Segoe UI", sans-serif; letter-spacing: -0.01em; color: #A3A7B0; margin-bottom: 8px; }
+      .banner .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+      .banner button { border: 1px solid #353944; background: #22252D; border-radius: 8px; padding: 6px 12px; cursor: pointer; color: #F4F1EC; }
+      .banner button:hover { border-color: #3D8BFF; }
+      .banner button.primary { background: #F2752B; border-color: #F2752B; color: #15171C; font-weight: 600; }
+      .banner button.primary:hover { background: #FF8A45; border-color: #FF8A45; }
+      button:focus-visible { outline: 2px solid #3D8BFF; outline-offset: 2px; }
     </style>
-    <button class="icon" type="button" aria-label="Password Manager: show logins for this site" title="Password Manager">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
-        <path d="M7 11V8a5 5 0 0 1 10 0v3"/><rect x="5" y="11" width="14" height="10" rx="2" fill="#fff" stroke="none"/>
+    <button class="icon" type="button" aria-label="VaultForge: show logins for this site" title="VaultForge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#3D8BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><circle cx="12" cy="10.5" r="1.8"/><path d="M12 12.3V15.5"/>
       </svg>
     </button>
-    <div class="menu" role="menu" aria-label="Password Manager logins"></div>
+    <div class="menu" role="menu" aria-label="VaultForge logins"></div>
     <div class="banner" role="dialog" aria-label="Save login"></div>`;
 
   const icon = root.querySelector('.icon');
@@ -164,9 +164,9 @@
       ({ logins } = await call('get-logins'));
     } catch (error) {
       menu.replaceChildren();
-      if (error.message === 'locked') note('Your vault is locked.', { label: 'Unlock in Password Manager', run: () => { call('show-app'); hideMenu(); } });
-      else if (error.message === 'not-paired') note('Not connected yet. Click the Password Manager toolbar icon to connect.');
-      else if (error.message === 'no-app') note('Password Manager isn’t running.', { label: 'Start Password Manager', run: () => { call('show-app'); hideMenu(); } });
+      if (error.message === 'locked') note('Your vault is locked.', { label: 'Unlock in VaultForge', run: () => { call('show-app'); hideMenu(); } });
+      else if (error.message === 'not-paired') note('Not connected yet. Click the VaultForge toolbar icon to connect.');
+      else if (error.message === 'no-app') note('VaultForge isn’t running.', { label: 'Start VaultForge', run: () => { call('show-app'); hideMenu(); } });
       else note('Something went wrong. Try again.');
       return;
     }
@@ -235,7 +235,7 @@
     ensureHost();
     banner.replaceChildren();
     const text = document.createElement('div');
-    text.innerHTML = '<div class="title"></div><div class="sub"></div>';
+    text.innerHTML = '<div class="brand">VaultForge</div><div class="title"></div><div class="sub"></div>';
     text.querySelector('.title').textContent = prompt.kind === 'changed' ? `Update password for ${prompt.site}?` : `Save login for ${prompt.site}?`;
     text.querySelector('.sub').textContent = prompt.username || '(no username)';
     const actions = document.createElement('div');

@@ -1,13 +1,13 @@
 # Code signing policy
 
-Windows releases of Password Manager are signed so you can check they really come from this project and haven't been altered.
+Windows releases of VaultForge are signed so you can check they really come from this project and haven't been altered.
 
 > Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 > *(Status: application in progress. Until it's approved, releases are unsigned.)*
 
 ## What is signed
-- `Vault.Desktop.exe`, `Vault.NativeHost.exe` and the project's own `Vault.*.dll` files
-- The installer, `PasswordManager-win-Setup.exe`
+- `VaultForge.exe`, `VaultForge.NativeHost.exe` and the project's own `VaultForge.*.dll` files
+- The installer, `VaultForge-vaultforge-Setup.exe`
 
 Only files built from this repository are signed. Third-party files (the .NET runtime, NuGet packages, Velopack's updater) are shipped as their authors publish them.
 
@@ -43,8 +43,8 @@ The app installs and runs for your Windows account only, with no admin rights. I
 
 | Change | Why | When |
 |---|---|---|
-| Installs to `%LOCALAPPDATA%\PasswordManager` with a Start menu shortcut | the app itself | on install |
-| Registry: `HKCU\Software\{Google\Chrome, Microsoft\Edge, Chromium, BraveSoftware\Brave-Browser, Mozilla}\NativeMessagingHosts\com.passwordmanager.host` | lets the browser extension talk to the app ([details](extension/README.md)) | on every start (kept up to date) |
-| Registry: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\PasswordManager` | "Start with Windows" | only if you turn it on in Settings |
+| Installs to `%LOCALAPPDATA%\VaultForge` with a Start menu shortcut | the app itself | on install |
+| Registry: `HKCU\Software\{Google\Chrome, Microsoft\Edge, Chromium, BraveSoftware\Brave-Browser, Mozilla}\NativeMessagingHosts\com.forgestudio.vaultforge` | lets the browser extension talk to the app ([details](extension/README.md)) | on every start (kept up to date) |
+| Registry: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\VaultForge` | "Start with Windows" | only if you turn it on in Settings |
 
-Your vault file, settings (`%APPDATA%\PasswordManager`) and backups (`%LOCALAPPDATA%\PasswordManager\Backups`) are kept on uninstall so you don't lose data. The [User Guide](docs/USER-GUIDE.md#13-updates-and-uninstalling) explains how to remove them too.
+Your vault file, settings (`%APPDATA%\Forge Studio\VaultForge`) and backups (`%LOCALAPPDATA%\Forge Studio\VaultForge\Backups`) are kept on uninstall so you don't lose data. The [User Guide](docs/USER-GUIDE.md#13-updates-and-uninstalling) explains how to remove them too.

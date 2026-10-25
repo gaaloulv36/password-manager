@@ -52,6 +52,7 @@ public partial class App : Application
         _settings = AppSettings.Load();
         if (migrated && _updates.IsInstalled && LegacyDataMigration.LegacyStartWithWindows()) StartupRegistration.SetEnabled(true);
         ScreenCaptureProtection.Install(_settings.ProtectFromScreenCapture);
+        BrandWindowChrome.Install();
         _session = new VaultSession();
         _clipboard = new ClipboardService { ClearAfter = TimeSpan.FromSeconds(_settings.ClipboardClearSeconds) };
         var dialogs = new DialogService(_clipboard);

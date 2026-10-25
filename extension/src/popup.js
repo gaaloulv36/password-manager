@@ -28,14 +28,14 @@ async function connect() {
   try {
     const { code } = await call('pair-start');
     render(
-      el('p', {}, 'Password Manager is asking you to approve this browser. Check that it shows the same code:'),
+      el('p', {}, 'VaultForge is asking you to approve this browser. Check that it shows the same code:'),
       el('div', { className: 'code', role: 'status', ariaLabel: `Pairing code ${code}` }, code),
-      el('p', { className: 'muted' }, 'Click “Approve” in the Password Manager window.'));
+      el('p', { className: 'muted' }, 'Click “Approve” in the VaultForge window.'));
     await call('pair-finish');
     await refresh();
   } catch (error) {
     render(
-      el('p', {}, error.message === 'pairing-rejected' ? 'The connection was not approved.' : 'Couldn’t connect. Is Password Manager running?'),
+      el('p', {}, error.message === 'pairing-rejected' ? 'The connection was not approved.' : 'Couldn’t connect. Is VaultForge running?'),
       el('div', { className: 'row' }, el('button', { className: 'primary', onclick: connect }, 'Try again')));
   }
 }
@@ -45,7 +45,7 @@ async function showLogins() {
   const site = url ? new URL(url).hostname : '';
   if (logins.length === 0) {
     render(el('p', { className: 'muted' }, site ? `No saved logins for ${site}.` : 'No saved logins for this page.'),
-      el('div', { className: 'row' }, el('button', { onclick: showApp }, 'Open Password Manager')));
+      el('div', { className: 'row' }, el('button', { onclick: showApp }, 'Open VaultForge')));
     return;
   }
 
@@ -76,7 +76,7 @@ async function hasWebsiteAccess() {
 
 async function refresh() {
   if (!(await hasWebsiteAccess())) {
-    render(el('p', {}, 'To fill logins, Password Manager needs access to the websites you visit. It only reads login forms, and only sends a password to a page when you pick a login.'),
+    render(el('p', {}, 'To fill logins, VaultForge needs access to the websites you visit. It only reads login forms, and only sends a password to a page when you pick a login.'),
       el('div', { className: 'row' }, el('button', {
         className: 'primary',
         onclick: async () => { if (await api.permissions.request(WEBSITE_ACCESS)) refresh(); },
@@ -89,14 +89,14 @@ async function refresh() {
     if (vaultName) document.getElementById('vault-name').textContent = vaultName;
 
     if (state === 'no-app') {
-      render(el('p', {}, 'Password Manager isn’t running.'),
-        el('div', { className: 'row' }, el('button', { className: 'primary', onclick: showApp }, 'Start Password Manager')));
+      render(el('p', {}, 'VaultForge isn’t running.'),
+        el('div', { className: 'row' }, el('button', { className: 'primary', onclick: showApp }, 'Start VaultForge')));
     } else if (state === 'not-paired') {
-      render(el('p', {}, 'Connect this browser to the Password Manager app on this PC to fill and save logins.'),
+      render(el('p', {}, 'Connect this browser to the VaultForge app on this PC to fill and save logins.'),
         el('div', { className: 'row' }, el('button', { className: 'primary', onclick: connect }, 'Connect')));
     } else if (state === 'locked') {
       render(el('p', {}, 'Your vault is locked.'),
-        el('div', { className: 'row' }, el('button', { className: 'primary', onclick: showApp }, 'Unlock in Password Manager')));
+        el('div', { className: 'row' }, el('button', { className: 'primary', onclick: showApp }, 'Unlock in VaultForge')));
     } else {
       await showLogins();
     }

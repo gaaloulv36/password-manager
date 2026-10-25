@@ -34,7 +34,7 @@
                             <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}"
                                      AutomationProperties.Name="Password (visible)"
                                      Visibility="{Binding IsPasswordRevealed, Converter={StaticResource BoolToVisibility}}" />
-                            <Button Grid.Column="1" Content="👁" Command="{Binding ToggleRevealCommand}" AutomationProperties.Name="Show password"
+                            <Button Grid.Column="1" Content="&#xE890;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Command="{Binding ToggleRevealCommand}" AutomationProperties.Name="Show password"
                                     ToolTip="Show / hide" Margin="8,0,0,0" />
                             <Button Grid.Column="2" Content="Generate…" Command="{Binding GenerateCommand}" Margin="8,0,0,0" />
                         </Grid>
@@ -77,13 +77,13 @@
         <!-- Toolbar -->
         <DockPanel Margin="0,0,0,12">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                <Button Content="＋ New entry" Command="{Binding NewItemCommand}" Style="{StaticResource AccentButtonStyle}"
+                <Button Content="New entry" Command="{Binding NewItemCommand}" Style="{StaticResource AccentButtonStyle}"
                         ToolTip="Ctrl+N" Margin="0,0,8,0" />
                 <Button Content="Generator" Command="{Binding OpenGeneratorCommand}" Margin="0,0,8,0" />
                 <Button Content="Import…" Command="{Binding ImportCommand}" Margin="0,0,8,0" />
-                <Button Content="🛡 Health" Command="{Binding OpenHealthCommand}" Margin="0,0,8,0" ToolTip="Weak, reused, old and breached passwords" />
-                <Button Content="⚙ Settings" Command="{Binding OpenSettingsCommand}" Margin="0,0,8,0" />
-                <Button Content="🔒 Lock" Command="{Binding LockCommand}" ToolTip="Ctrl+L" />
+                <Button Content="Health" Command="{Binding OpenHealthCommand}" Margin="0,0,8,0" ToolTip="Weak, reused, old and breached passwords" />
+                <Button Content="Settings" Command="{Binding OpenSettingsCommand}" Margin="0,0,8,0" />
+                <Button Content="Lock" Command="{Binding LockCommand}" ToolTip="Ctrl+L" />
             </StackPanel>
             <TextBlock Text="{Binding VaultName}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
@@ -192,7 +192,7 @@
                         <TextBlock Text="Password" Style="{StaticResource FieldLabel}" />
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Content="👁" AutomationProperties.Name="Show password" Command="{Binding ToggleRevealCommand}" ToolTip="Show / hide" Margin="0,0,8,0" />
+                                <Button Content="&#xE890;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" AutomationProperties.Name="Show password" Command="{Binding ToggleRevealCommand}" ToolTip="Show / hide" Margin="0,0,8,0" />
                                 <Button Content="Copy" Command="{Binding CopyPasswordCommand}" />
                             </StackPanel>
                             <TextBlock Text="{Binding MaskedPassword}" FontFamily="{StaticResource MonoFont}" FontSize="15"

@@ -1,12 +1,12 @@
-# Password Manager browser extension
+# VaultForge browser extension
 
-Fills and saves logins from the Password Manager desktop app. Works in **Chrome, Edge, Opera, Opera GX and Brave** (same code), and **Firefox**.
+Fills and saves logins from the VaultForge desktop app. Works in **Chrome, Edge, Opera, Opera GX and Brave** (same code), and **Firefox**.
 
 The extension never stores passwords. It asks the desktop app for one login at a time, when you pick it. Every message is end-to-end encrypted with a key agreed when you connect the browser.
 
 ## Install (development / unpacked)
 
-First run the desktop app once. On startup it registers its browser connector (`Vault.NativeHost.exe`) for all supported browsers. This needs no admin rights.
+First run the desktop app once. On startup it registers its browser connector (`VaultForge.NativeHost.exe`) for all supported browsers. This needs no admin rights.
 
 | Browser | Steps |
 |---|---|
@@ -20,7 +20,7 @@ All Chromium-based browsers get the same extension ID (`mdkfdlddmhpcgcdlbnbjmedh
 
 ## Connect
 
-1. Click the Password Manager icon in the toolbar → **Connect**.
+1. Click the VaultForge icon in the toolbar → **Connect**.
 2. The browser and the desktop app both show a 6-digit code. If they match, click **Approve** in the app.
 3. Done. You only need to do this once per browser. Connected browsers are listed in the app under **Settings → Browser extension**.
 
@@ -36,12 +36,12 @@ All Chromium-based browsers get the same extension ID (`mdkfdlddmhpcgcdlbnbjmedh
 - A login saved for HTTPS is never filled on HTTP.
 - Nothing is filled automatically; filling always takes a click.
 - Each message is AES-256-GCM encrypted. Replayed or out-of-date messages are rejected.
-- The connector only accepts connections from your own Windows account. The app only accepts its own `Vault.NativeHost.exe`.
+- The connector only accepts connections from your own Windows account. The app only accepts its own `VaultForge.NativeHost.exe`.
 
 ## Tests
 
 ```
 node --test extension/test/protocol.test.mjs   # crypto matches the C# side (shared test vector)
-node extension/test/e2e.mjs <path>\Vault.NativeHost.exe   # full run against the running app (needs approval in the app)
+node extension/test/e2e.mjs <path>\VaultForge.NativeHost.exe   # full run against the running app (needs approval in the app)
 node extension/test/login-page.mjs              # local sign-in page at http://localhost:8765/login for trying it by hand
 ```

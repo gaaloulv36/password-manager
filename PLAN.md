@@ -1,4 +1,4 @@
-# Password Manager — Plan
+# VaultForge — Plan
 
 **Scope:** Windows desktop app + browser extension (Chrome/Edge/Firefox). Sync = the encrypted vault file lives in a folder I already sync (OneDrive / Google Drive / Syncthing). No server.
 
@@ -7,24 +7,24 @@
 ## Architecture
 
 ```
-┌──────────────────┐  native messaging  ┌──────────────────┐  named pipe   ┌──────────────────────┐
-│ Browser extension│ ◄─────(stdio)─────►│ Vault.NativeHost │ ◄────────────►│ Vault.Desktop (WPF)  │
-│ (TypeScript, MV3)│                    │ (tiny console)   │  encrypted    │ holds unlocked vault │
-└──────────────────┘                    └──────────────────┘               └──────────┬───────────┘
-                                                                                      │ Vault.Core
-                                                                           ┌──────────▼───────────┐
-                                                                           │ vault.pmvault (JSON) │
-                                                                           │ in OneDrive folder   │
-                                                                           └──────────────────────┘
+┌──────────────────┐  native messaging  ┌───────────────────────┐  named pipe   ┌──────────────────────────┐
+│ Browser extension│ ◄─────(stdio)─────►│ VaultForge.NativeHost │ ◄────────────►│ VaultForge.Desktop (WPF) │
+│ (TypeScript, MV3)│                    │ (tiny console)        │  encrypted    │ holds unlocked vault     │
+└──────────────────┘                    └───────────────────────┘               └────────────┬─────────────┘
+                                                                                                │ VaultForge.Core
+                                                                                    ┌───────────▼──────────────┐
+                                                                                    │ vault.pmvault (JSON)     │
+                                                                                    │ in OneDrive folder       │
+                                                                                    └──────────────────────────┘
 ```
 
 | Project | Role |
 |---|---|
-| `src/Vault.Core` | Crypto, vault model, file format, generator, TOTP, merge. **No UI, no I/O beyond the file.** |
-| `src/Vault.Desktop` | WPF app: unlock, list/search, edit, generator, settings, tray icon, auto-lock. |
-| `src/Vault.NativeHost` | Launched by the browser; relays messages to the desktop app over a named pipe. |
+| `src/VaultForge.Core` | Crypto, vault model, file format, generator, TOTP, merge. **No UI, no I/O beyond the file.** |
+| `src/VaultForge.Desktop` | WPF app: unlock, list/search, edit, generator, settings, tray icon, auto-lock. |
+| `src/VaultForge.NativeHost` | Launched by the browser; relays messages to the desktop app over a named pipe. |
 | `extension/` | Detects login forms, asks the desktop app for matching credentials, fills them. |
-| `tests/Vault.Core.Tests` | Unit tests, incl. crypto test vectors. |
+| `tests/VaultForge.Core.Tests` | Unit tests, incl. crypto test vectors. |
 
 ## Crypto design
 
@@ -69,7 +69,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] Generator dialog (password + passphrase)
 - [x] Tray icon, global hotkey Ctrl+Alt+P (focuses search/unlock), single instance
 - [x] Import: Chrome/Edge, Firefox, Bitwarden CSV/JSON, KeePass, KeePassXC — preview, duplicate detection, deletes the export file
-- [x] Backups: automatic daily copy (last 14, `%LOCALAPPDATA%\PasswordManager\Backups`), manual backup; CSV export behind master password + warning
+- [x] Backups: automatic daily copy (last 14, `%LOCALAPPDATA%\Forge Studio\VaultForge\Backups`), manual backup; CSV export behind master password + warning
 - [ ] Later: mask password in edit mode; better strength meter (zxcvbn-style); Windows Hello unlock (Phase 5)
 
 ### Phase 3 — File sync ✅
@@ -83,9 +83,9 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [ ] Later: offer "overwrite the damaged file with my open vault" when the file on disk is rejected
 
 ### Phase 4 — Browser extension ✅ (confirmed working by hand in Opera GX and Brave)
-- [x] `Vault.NativeHost` relays native-messaging frames ⇄ named pipe; can start the app on request
+- [x] `VaultForge.NativeHost` relays native-messaging frames ⇄ named pipe; can start the app on request
 - [x] Registry entries (HKCU) for Chrome, Edge, Chromium (Opera reads Chrome's) and Firefox, rewritten on every start
-- [x] Named-pipe server: `CurrentUserOnly` + client must be our own `Vault.NativeHost.exe`
+- [x] Named-pipe server: `CurrentUserOnly` + client must be our own `VaultForge.NativeHost.exe`
 - [x] Pairing: ECDH P-256 + HKDF; 6-digit code compared in browser and app; key stored with DPAPI; disconnect in Settings
 - [x] Every message AES-256-GCM with direction bound in; replayed/stale/forged messages rejected
 - [x] Extension (plain JS, no build step for Chromium): inline padlock menu, toolbar popup, Ctrl+Shift+L, fill on click
@@ -110,7 +110,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [x] `PasswordChangedAt` tracked when the password itself changes (editor, browser "update password")
 
 ### Phase 6 — Installer & auto-update ✅
-- [x] Velopack: per-user install in %LOCALAPPDATA%\PasswordManager, no admin, Start menu shortcut
+- [x] Velopack: per-user install in %LOCALAPPDATA%\VaultForge, no admin, Start menu shortcut
 - [x] Self-contained (.NET bundled); app + native host published into one folder (~88 MB installer, delta updates after)
 - [x] Auto-update from GitHub Releases: background download, install on exit or "Restart to update"; can be turned off
 - [x] Start with Windows (HKCU Run, `--minimized` → tray only)
@@ -142,7 +142,7 @@ header fields ── HMAC-SHA256(HKDF(vault key, "pm:header-mac:v1")) ──► 
 - [ ] SignPath Foundation application approved → first signed release
 - [x] libsodium Argon2: evaluated, skipped (single-lane: ~0.27 s slower unlock, no strength gain, Konscious still needed for old backups); revisit if a review flags Konscious
 - [x] v1.0.6: fuzz-found robustness fixes released (first release through the restructured, signing-ready pipeline)
-- [ ] External review of `Vault.Core`
+- [ ] External review of `VaultForge.Core`
 - [ ] Installer (MSIX or Velopack) + code signing
 
 ## Rules for myself

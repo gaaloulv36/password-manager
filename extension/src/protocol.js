@@ -1,7 +1,7 @@
 // Crypto for the extension ⇄ desktop app link. Must stay byte-for-byte compatible with
-// src/Vault.Core/Browser/BrowserProtocol.cs (checked by test/protocol.test.mjs against a shared vector).
+// src/VaultForge.Core/Browser/BrowserProtocol.cs (checked by test/protocol.test.mjs against a shared vector).
 
-export const HOST_NAME = 'com.passwordmanager.host';
+export const HOST_NAME = 'com.forgestudio.vaultforge';
 export const TO_APP = 'ext-to-app';
 export const TO_EXTENSION = 'app-to-ext';
 

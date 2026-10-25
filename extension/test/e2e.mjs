@@ -1,5 +1,5 @@
 // Manual integration test: plays the browser against the real native host + running desktop app.
-// usage: node extension/test/e2e.mjs <path-to-Vault.NativeHost.exe>
+// usage: node extension/test/e2e.mjs <path-to-VaultForge.NativeHost.exe>
 // Prints the pairing code and waits for you to approve it in the app. Expects a "GitHub" login
 // for https://github.com in the open vault.
 import { spawn } from 'node:child_process';

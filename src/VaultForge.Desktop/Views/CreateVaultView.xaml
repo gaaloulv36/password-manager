@@ -45,7 +45,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border BorderBrush="#E0A800" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,20,0,0">
+                <Border BorderBrush="{StaticResource EmberBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,20,0,0">
                     <CheckBox IsChecked="{Binding UnderstandsNoRecovery}">
                         <TextBlock TextWrapping="Wrap"
                                    Text="I understand that if I forget my master password, my vault cannot be recovered by anyone." />

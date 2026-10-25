@@ -8,10 +8,163 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Windows 11 Fluent look; follows the system light/dark setting -->
-                <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
+                <!-- Fluent controls, dark variant: Forge Studio products are dark-only. Mapped onto the brand below. -->
+                <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- ============ Forge Studio brand tokens (same values as the website's styles.css) ============ -->
+            <Color x:Key="CharcoalColor">#15171C</Color>
+            <Color x:Key="Surface1Color">#1C1F26</Color>
+            <Color x:Key="Surface2Color">#22252D</Color>
+            <Color x:Key="Surface3Color">#292D36</Color>
+            <Color x:Key="LineColor">#2A2E37</Color>
+            <Color x:Key="LineStrongColor">#353944</Color>
+            <Color x:Key="AshColor">#F4F1EC</Color>
+            <Color x:Key="TextSoftColor">#C9CCD3</Color>
+            <Color x:Key="MutedColor">#A3A7B0</Color>
+            <Color x:Key="EmberColor">#F2752B</Color>
+            <Color x:Key="EmberHoverColor">#FF8A45</Color>
+            <!-- VaultForge product accent -->
+            <Color x:Key="VaultColor">#3D8BFF</Color>
+
+            <SolidColorBrush x:Key="CharcoalBrush" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="Surface1Brush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="Surface2Brush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
+            <SolidColorBrush x:Key="AshBrush" Color="{StaticResource AshColor}" />
+            <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+            <SolidColorBrush x:Key="EmberBrush" Color="{StaticResource EmberColor}" />
+            <SolidColorBrush x:Key="VaultBrush" Color="{StaticResource VaultColor}" />
+
+            <FontFamily x:Key="BodyFont">pack://application:,,,/VaultForge;component/Assets/Fonts/#Inter</FontFamily>
+            <!-- The Space Grotesk files register their typographic family as "Space Grotesk Light" (Medium + Bold faces). -->
+            <FontFamily x:Key="DisplayFont">pack://application:,,,/VaultForge;component/Assets/Fonts/#Space Grotesk Light</FontFamily>
+            <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+            <!-- ============ Fluent theme mapped onto the brand ============ -->
+            <!-- Accent (focus, checkboxes, selection, links): VaultForge blue -->
+            <Color x:Key="SystemAccentColor">#3D8BFF</Color>
+            <!-- In dark mode Fluent fills checkboxes, radios and sliders with the Light shades: keep them at the brand blue. -->
+            <Color x:Key="SystemAccentColorLight1">#3D8BFF</Color>
+            <Color x:Key="SystemAccentColorLight2">#3D8BFF</Color>
+            <Color x:Key="SystemAccentColorLight3">#5E9FFF</Color>
+            <Color x:Key="SystemAccentColorDark1">#2F72D6</Color>
+            <Color x:Key="SystemAccentColorDark2">#245AAD</Color>
+            <Color x:Key="SystemAccentColorDark3">#1A4180</Color>
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#7FB2FF" />
+            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#A8CAFF" />
+            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="HyperlinkForeground" Color="#7FB2FF" />
+            <SolidColorBrush x:Key="HyperlinkForegroundPointerOver" Color="#A8CAFF" />
+            <SolidColorBrush x:Key="FocusStrokeColorOuterBrush" Color="#3D8BFF" />
+            <!-- Controls with their own accent brushes (built from the old accent when Fluent loads) -->
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPressed" Color="#2F72D6" />
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" Color="#2F72D6" />
+            <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedFill" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStroke" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="SliderThumbBackground" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="SliderTrackValueFill" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#3D8BFF" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#5E9FFF" />
+            <SolidColorBrush x:Key="ProgressBarForeground" Color="#3D8BFF" />
+
+            <!-- Primary buttons: Ember with Charcoal text, like the website's .btn-primary -->
+            <SolidColorBrush x:Key="AccentButtonBackground" Color="{StaticResource EmberColor}" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="{StaticResource EmberHoverColor}" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#D9661F" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#5A3A27" />
+            <SolidColorBrush x:Key="AccentButtonForeground" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPointerOver" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPressed" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="AccentButtonForegroundDisabled" Color="#9C8F86" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrush" Color="{StaticResource EmberColor}" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushPointerOver" Color="{StaticResource EmberHoverColor}" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushPressed" Color="#D9661F" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#5A3A27" />
+
+            <!-- Surfaces and text -->
+            <Color x:Key="ApplicationBackgroundColor">#15171C</Color>
+            <SolidColorBrush x:Key="ApplicationBackgroundBrush" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="WindowBackground" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="SolidBackgroundFillColorBaseBrush" Color="{StaticResource CharcoalColor}" />
+            <SolidColorBrush x:Key="SolidBackgroundFillColorSecondaryBrush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="SolidBackgroundFillColorTertiaryBrush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="SolidBackgroundFillColorQuarternaryBrush" Color="{StaticResource Surface3Color}" />
+            <SolidColorBrush x:Key="LayerFillColorDefaultBrush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="{StaticResource Surface1Color}" />
+            <SolidColorBrush x:Key="CardBackgroundFillColorSecondaryBrush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="{StaticResource LineColor}" />
+            <SolidColorBrush x:Key="CardStrokeColorDefaultSolidBrush" Color="{StaticResource LineColor}" />
+            <SolidColorBrush x:Key="ControlFillColorDefaultBrush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="ControlFillColorSecondaryBrush" Color="{StaticResource Surface3Color}" />
+            <SolidColorBrush x:Key="ControlFillColorTertiaryBrush" Color="#1F2229" />
+            <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="{StaticResource LineStrongColor}" />
+            <SolidColorBrush x:Key="SubtleFillColorSecondaryBrush" Color="{StaticResource Surface2Color}" />
+            <SolidColorBrush x:Key="SubtleFillColorTertiaryBrush" Color="#1F2229" />
+            <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="{StaticResource AshColor}" />
+            <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="{StaticResource TextSoftColor}" />
+            <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="{StaticResource MutedColor}" />
+
+            <!-- Also used by the 20 px checkbox square: much more than 6 turns it into a circle. -->
+            <CornerRadius x:Key="ControlCornerRadius">6</CornerRadius>
+            <CornerRadius x:Key="OverlayCornerRadius">12</CornerRadius>
+
+            <!-- ============ Typography: Space Grotesk for headings, Inter for everything else ============ -->
+            <!-- Same keys as Fluent's heading styles, so every heading in the app switches to the display font.
+                 Sizes are set explicitly: a style can't be BasedOn the key it is redefining. -->
+            <Style x:Key="TitleTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="LineHeight" Value="36" />
+                <Setter Property="Foreground" Value="{StaticResource AshBrush}" />
+            </Style>
+            <Style x:Key="SubtitleTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="LineHeight" Value="28" />
+                <Setter Property="Foreground" Value="{StaticResource AshBrush}" />
+            </Style>
+
+            <!-- The product wordmark: "Vault" in 500, "Forge" in 700 (brand naming rule) -->
+            <Style x:Key="Wordmark" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+                <Setter Property="Foreground" Value="{StaticResource AshBrush}" />
+            </Style>
+
+            <!-- The VaultForge icon (Forge Studio brand kit): dark tile, blue shield with keyhole, ember spark -->
+            <DrawingImage x:Key="VaultForgeLogo">
+                <DrawingImage.Drawing>
+                    <DrawingGroup>
+                        <GeometryDrawing Brush="#22252D">
+                            <GeometryDrawing.Geometry>
+                                <RectangleGeometry Rect="0,0,64,64" RadiusX="15" RadiusY="15" />
+                            </GeometryDrawing.Geometry>
+                        </GeometryDrawing>
+                        <DrawingGroup Transform="1.5,0,0,1.5,14,14">
+                            <GeometryDrawing Geometry="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z M10.2,10.5 A1.8,1.8 0 1 1 13.8,10.5 A1.8,1.8 0 1 1 10.2,10.5 M12 12.3V15.5">
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="#3D8BFF" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                                </GeometryDrawing.Pen>
+                            </GeometryDrawing>
+                        </DrawingGroup>
+                        <GeometryDrawing Brush="#F2752B"
+                                         Geometry="M51 7C51.5 10.5 53.5 12.5 57 13 53.5 13.5 51.5 15.5 51 19 50.5 15.5 48.5 13.5 45 13 48.5 12.5 50.5 10.5 51 7Z" />
+                    </DrawingGroup>
+                </DrawingImage.Drawing>
+            </DrawingImage>
+
+            <!-- ============ App styles ============ -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
             <conv:BoolToVisibilityConverter x:Key="InverseBoolToVisibility" Invert="True" />
             <conv:NullToVisibilityConverter x:Key="VisibleWhenSet" />
@@ -19,25 +172,23 @@
             <conv:InverseBoolConverter x:Key="InverseBool" />
             <conv:LocalTimeConverter x:Key="LocalTime" />
 
-            <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
-
             <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                <Setter Property="Opacity" Value="0.75" />
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="Margin" Value="0,14,0,4" />
             </Style>
 
             <Style x:Key="ErrorText" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
-                <Setter Property="Foreground" Value="#D13438" />
+                <Setter Property="Foreground" Value="#FF6B5E" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="Margin" Value="0,12,0,0" />
             </Style>
 
-            <!-- Card surface used for forms and the details pane -->
+            <!-- Card surface for forms and the details pane (website: surface-1, line border, rounded) -->
             <Style x:Key="Card" TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="Background" Value="{StaticResource Surface1Brush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="CornerRadius" Value="14" />
                 <Setter Property="Padding" Value="24" />
             </Style>
 

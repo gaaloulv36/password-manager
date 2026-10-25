@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Icon="pack://application:,,,/VaultForge;component/Assets/VaultForge.ico"
-        Title="Password health"
+        FontFamily="{StaticResource BodyFont}"
+        Background="{StaticResource CharcoalBrush}"
+        Title="Password health · VaultForge"
         Width="720" Height="680" MinWidth="520" MinHeight="420"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Window.Resources>
@@ -26,7 +28,7 @@
         <Border Style="{StaticResource Card}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Left" Margin="0,0,24,0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding ScoreText}" FontSize="44" FontWeight="SemiBold" HorizontalAlignment="Center"
+                    <TextBlock Text="{Binding ScoreText}" FontSize="44" FontWeight="Bold" FontFamily="{StaticResource DisplayFont}" HorizontalAlignment="Center"
                                AutomationProperties.Name="Health score" />
                     <TextBlock Text="out of 100" Style="{StaticResource CountLabel}" />
                 </StackPanel>

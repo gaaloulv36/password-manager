@@ -24,9 +24,9 @@ SOFTWARE.
 
 Third-party components bundled with this software:
 
-- EFF large wordlist (src/Vault.Core/Generators/Resources/eff_large_wordlist.txt),
+- EFF large wordlist (src/VaultForge.Core/Generators/Resources/eff_large_wordlist.txt),
   Electronic Frontier Foundation, CC BY 3.0 US — https://www.eff.org/dice
-- 10k most common passwords (src/Vault.Core/Generators/Resources/common-passwords.txt),
+- 10k most common passwords (src/VaultForge.Core/Generators/Resources/common-passwords.txt),
   SecLists by Daniel Miessler et al., MIT — https://github.com/danielmiessler/SecLists
 - NuGet packages (Konscious.Security.Cryptography.Argon2, CommunityToolkit.Mvvm, Velopack, …)
   are distributed under their own licenses.

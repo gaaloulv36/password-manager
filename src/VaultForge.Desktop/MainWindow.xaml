@@ -2,21 +2,37 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Icon="pack://application:,,,/VaultForge;component/Assets/VaultForge.ico"
-        Title="Password Manager"
-        AutomationProperties.Name="Password Manager"
-        Width="1040" Height="680" MinWidth="760" MinHeight="520"
+        Title="VaultForge"
+        AutomationProperties.Name="VaultForge"
+        FontFamily="{StaticResource BodyFont}"
+        Background="{StaticResource CharcoalBrush}"
+        Width="1080" Height="720" MinWidth="780" MinHeight="540"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
+        <!-- Brand bar: icon, wordmark, studio line (same pattern as ThermoForge) -->
+        <Border DockPanel.Dock="Top" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="20,12">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{StaticResource VaultForgeLogo}" Width="30" Height="30" Margin="0,0,10,0" VerticalAlignment="Center"
+                       AutomationProperties.Name="VaultForge logo" />
+                <TextBlock Style="{StaticResource Wordmark}" FontSize="20" VerticalAlignment="Center">
+                    <Run Text="Vault" FontWeight="Medium" /><Run Text="Forge" FontWeight="Bold" />
+                </TextBlock>
+                <TextBlock Text="by Forge Studio" Foreground="{StaticResource MutedBrush}" FontSize="12"
+                           Margin="10,0,0,3" VerticalAlignment="Bottom" />
+            </StackPanel>
+        </Border>
+
         <!-- Update ready -->
-        <Border DockPanel.Dock="Top" Background="{DynamicResource AccentFillColorDefaultBrush}" Padding="16,8"
+        <Border DockPanel.Dock="Top" Background="{StaticResource Surface2Brush}" BorderBrush="{StaticResource EmberBrush}"
+                BorderThickness="0,0,0,2" Padding="20,8"
                 Visibility="{Binding UpdateReadyVersion, Converter={StaticResource VisibleWhenSet}}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="Restart to update" Command="{Binding RestartToUpdateCommand}" Margin="0,0,8,0" Padding="12,4" />
+                    <Button Content="Restart to update" Command="{Binding RestartToUpdateCommand}" Style="{StaticResource AccentButtonStyle}"
+                            Margin="0,0,8,0" Padding="12,4" />
                     <Button Content="Later" Command="{Binding DismissUpdateCommand}" Padding="12,4" />
                 </StackPanel>
-                <TextBlock Text="{Binding UpdateMessage}" VerticalAlignment="Center" FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding UpdateMessage}" VerticalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
             </DockPanel>
         </Border>
 

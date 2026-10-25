@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(fileURLToPath(import.meta.url));
 const base = JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8'));
 
-export const FIREFOX_ID = 'password-manager@gaaloulv36.github.io';
+export const FIREFOX_ID = 'vaultforge@gaaloulv36.github.io';
 
 function firefoxManifest() {
   const { key, minimum_chrome_version, background, ...rest } = base;
@@ -27,6 +27,7 @@ function build(target, manifest) {
   mkdirSync(out, { recursive: true });
   cpSync(join(root, 'src'), join(out, 'src'), { recursive: true });
   cpSync(join(root, 'icons'), join(out, 'icons'), { recursive: true });
+  cpSync(join(root, 'fonts'), join(out, 'fonts'), { recursive: true });
   writeFileSync(join(out, 'manifest.json'), JSON.stringify(manifest, null, 2));
   console.log(`built ${out}`);
 }

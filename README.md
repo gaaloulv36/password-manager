@@ -1,10 +1,18 @@
-# Password Manager
+<p align="center">
+  <img src="docs/logo.png" alt="VaultForge logo" width="96" height="96">
+</p>
+
+<h1 align="center">VaultForge</h1>
+
+<p align="center"><b>Your passwords, in one encrypted file only you can open.</b><br>by <a href="https://github.com/gaaloulv36">Forge Studio</a></p>
+
+---
 
 A personal, offline-first password manager for Windows with a companion browser extension. It stores all your logins in a single encrypted vault file that only you can open with your master password, and fills them into websites for you.
 
 > **Status:** in active development. See [PLAN.md](PLAN.md) for what is built so far and what is next.
 
-📖 **New here? Read the [User Guide](docs/USER-GUIDE.md).** It covers installing, creating your vault, the browser extension, importing your passwords, using several PCs, backups and troubleshooting, step by step.
+**New here? Read the [User Guide](docs/USER-GUIDE.md).** It covers installing, creating your vault, the browser extension, importing your passwords, using several PCs, backups and troubleshooting, step by step.
 
 ---
 
@@ -20,7 +28,7 @@ A personal, offline-first password manager for Windows with a companion browser 
 ## Getting started
 
 ### Installing
-1. Download **`PasswordManager-win-Setup.exe`** from the latest [release](https://github.com/gaaloulv36/password-manager/releases/latest) and run it. No admin rights are needed, and nothing else needs to be installed first.
+1. Download **`VaultForge-vaultforge-Setup.exe`** from the latest [release](https://github.com/gaaloulv36/vaultforge/releases/latest) and run it. No admin rights are needed, and nothing else needs to be installed first.
 2. Windows SmartScreen may warn that the publisher is unknown (the installer isn't code-signed yet). Choose **More info → Run anyway**.
 3. The app installs for your Windows account, adds a Start menu shortcut, and opens.
 
@@ -32,7 +40,7 @@ A personal, offline-first password manager for Windows with a companion browser 
 3. Choose a master password and type it twice. A strength meter shows how strong it is.
 4. The vault opens, empty and ready to use.
 
-> ⚠️ If you forget your master password, your vault **cannot** be opened by anyone, including you. Write it down and keep it somewhere safe.
+> **Important:** if you forget your master password, your vault **cannot** be opened by anyone, including you. Write it down and keep it somewhere safe.
 
 ### Opening an existing vault
 1. Choose **Open an existing vault…** and select the vault file. This is how you open the same vault on a second PC.

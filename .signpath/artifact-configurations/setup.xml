@@ -2,6 +2,6 @@
 <!-- SignPath artifact configuration "setup": the Velopack installer. Slug "setup". -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
   <zip-file>
-    <pe-file path="PasswordManager-win-Setup.exe"><authenticode-sign /></pe-file>
+    <pe-file path="VaultForge-vaultforge-Setup.exe"><authenticode-sign /></pe-file>
   </zip-file>
 </artifact-configuration>

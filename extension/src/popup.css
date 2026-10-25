@@ -1,25 +1,38 @@
+/* VaultForge popup: Forge Studio brand tokens (same values as the website and the desktop app). Dark-only. */
+@font-face { font-family: "Inter"; font-weight: 400; src: url("../fonts/inter-400.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-weight: 600; src: url("../fonts/inter-600.ttf") format("truetype"); }
+@font-face { font-family: "Space Grotesk"; font-weight: 500; src: url("../fonts/space-grotesk-500.ttf") format("truetype"); }
+@font-face { font-family: "Space Grotesk"; font-weight: 700; src: url("../fonts/space-grotesk-700.ttf") format("truetype"); }
+
 :root {
-  --bg: #ffffff; --fg: #1f2937; --muted: #6b7280; --line: #e5e7eb; --hover: #eff6ff;
-  --accent: #2563eb; --accent-fg: #ffffff; --code-bg: #f3f4f6;
-  color-scheme: light dark;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #1f2937; --fg: #f3f4f6; --muted: #9ca3af; --line: #374151; --hover: #374151; --code-bg: #111827; }
+  --charcoal: #15171c; --surface-1: #1c1f26; --surface-2: #22252d; --line: #2a2e37; --line-strong: #353944;
+  --ash: #f4f1ec; --text-soft: #c9ccd3; --muted: #a3a7b0;
+  --ember: #f2752b; --ember-hover: #ff8a45; --vault: #3d8bff;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { margin: 0; width: 320px; background: var(--bg); color: var(--fg); font: 13px/1.4 "Segoe UI", system-ui, sans-serif; }
-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 600; }
+body { margin: 0; width: 320px; background: var(--charcoal); color: var(--ash); font: 13px/1.45 "Inter", "Segoe UI", system-ui, sans-serif; }
+
+header { display: flex; align-items: center; gap: 9px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+header img { border-radius: 6px; }
+.wordmark { font-family: "Space Grotesk", "Segoe UI", sans-serif; font-size: 16px; letter-spacing: -0.02em; }
+.wordmark .w-prod { font-weight: 500; }
+.wordmark .w-forge { font-weight: 700; }
+#vault-name { margin-left: auto; color: var(--muted); font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 main { padding: 12px 14px 14px; }
-p { margin: 0 0 10px; }
+p { margin: 0 0 10px; color: var(--text-soft); }
 .muted { color: var(--muted); }
-button { font: inherit; cursor: pointer; border-radius: 6px; padding: 6px 12px; border: 1px solid var(--line); background: transparent; color: var(--fg); }
-button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.code { font: 600 28px/1.2 "Cascadia Mono", Consolas, monospace; letter-spacing: 2px; text-align: center; background: var(--code-bg);
-        border-radius: 8px; padding: 12px; margin: 8px 0 12px; }
+button { font: inherit; cursor: pointer; border-radius: 8px; padding: 7px 14px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ash); }
+button:hover { border-color: var(--vault); }
+button.primary { background: var(--ember); border-color: var(--ember); color: var(--charcoal); font-weight: 600; }
+button.primary:hover { background: var(--ember-hover); border-color: var(--ember-hover); }
+button:focus-visible { outline: 2px solid var(--vault); outline-offset: 2px; }
+.code { font: 700 28px/1.2 "Space Grotesk", "Cascadia Mono", Consolas, monospace; letter-spacing: 2px; text-align: center;
+        background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin: 8px 0 12px; color: var(--ash); }
 ul { list-style: none; margin: 0 -14px; padding: 0; }
-li button { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; padding: 8px 14px; }
-li button:hover, li button:focus-visible { background: var(--hover); outline: none; }
-.title { font-weight: 600; }
+li button { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; padding: 9px 14px; background: transparent; }
+li button:hover, li button:focus-visible { background: var(--surface-2); outline: none; box-shadow: inset 2px 0 0 var(--vault); }
+.title { font-weight: 600; color: var(--ash); }
 .sub { color: var(--muted); font-size: 12px; }
 .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }

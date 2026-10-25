@@ -16,7 +16,7 @@ public static class NativeHostRegistration
     public const string ChromiumExtensionId = "mdkfdlddmhpcgcdlbnbjmedhbpfnodgp";
 
     /// <summary>Set in extension/build.mjs (browser_specific_settings.gecko.id).</summary>
-    public const string FirefoxExtensionId = "password-manager@gaaloulv36.github.io";
+    public const string FirefoxExtensionId = "vaultforge@gaaloulv36.github.io";
 
     private const string FirefoxKey = @"Software\Mozilla\NativeMessagingHosts\";
 

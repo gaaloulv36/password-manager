@@ -1,4 +1,4 @@
-# Password Manager: User Guide
+# VaultForge: User Guide
 
 A step-by-step guide to everyday use. For an overview of the features see the [README](../README.md); for how your data is protected see [SECURITY.md](../SECURITY.md).
 
@@ -24,7 +24,7 @@ A step-by-step guide to everyday use. For an overview of the features see the [R
 
 ## 1. Install
 
-1. Download **`PasswordManager-win-Setup.exe`** from the [latest release](https://github.com/gaaloulv36/password-manager/releases/latest).
+1. Download **`VaultForge-vaultforge-Setup.exe`** from the [latest release](https://github.com/gaaloulv36/vaultforge/releases/latest).
 2. Run it. If Windows SmartScreen says *"Windows protected your PC"*, click **More info → Run anyway**. The installer isn't code-signed yet; nothing is wrong with it.
 3. The app installs for your Windows account. There's no admin prompt, and nothing else needs to be installed first. It adds a Start menu shortcut and opens.
 
@@ -45,7 +45,7 @@ Your vault is **one encrypted file** that holds all your logins.
 4. Tick **"I understand that if I forget my master password, my vault cannot be recovered by anyone."**
 5. Click **Create vault**. It takes about a second, then your empty vault opens.
 
-> ⚠️ **Write your master password down and keep it somewhere safe** (not on the PC). There is no "forgot password". Without it, nobody can open the vault, including you.
+> **Important: write your master password down and keep it somewhere safe** (not on the PC). There is no "forgot password". Without it, nobody can open the vault, including you.
 
 ---
 
@@ -78,7 +78,7 @@ Press **Ctrl+Alt+P** from anywhere in Windows. The app comes to the front with t
 2. Fill in:
    - **Title** *(required)*, e.g. *GitHub*.
    - **Username or email.**
-   - **Password**: type it, or click **Generate…**. Click 👁 to check what you typed.
+   - **Password**: type it, or click **Generate…**. Click the eye button to check what you typed.
    - **Websites**: one per line, e.g. `github.com`. The browser extension uses these to know where to offer the login.
    - **Only on these exact websites…**: tick it to stop the login being offered on subdomains (e.g. a `google.com` login won't appear on `sites.google.com`).
    - **2FA secret**: see [section 6](#6-two-factor-2fa-codes).
@@ -118,7 +118,7 @@ The app can show the rotating 6-digit codes that an authenticator app normally s
 
 1. On the website, turn on 2FA with an **"authenticator app"**.
 2. When it shows a QR code, look for **"Can't scan it?"** or **"Enter a setup key"**. Copy that key (e.g. `JBSW Y3DP EHPK 3PXP`).
-3. Edit the entry in Password Manager and paste the key into **2FA secret**. An `otpauth://…` link works too.
+3. Edit the entry in VaultForge and paste the key into **2FA secret**. An `otpauth://…` link works too.
 4. **Save**. The entry now shows a live **2FA code** with a countdown. When a site asks for the code, click **Copy** next to it and paste it in. The browser extension fills the username and password, not the code.
 
 > Keeping the password and the 2FA secret in the same vault is convenient, but it means the vault alone can get into the account. For your most important accounts (email, bank) you may prefer a separate authenticator app on your phone.
@@ -130,7 +130,7 @@ The app can show the rotating 6-digit codes that an authenticator app normally s
 ### Step 1: export from your old manager
 | From | How to export |
 |---|---|
-| **Chrome** | Settings → Autofill and passwords → Google Password Manager → Settings → **Export passwords** |
+| **Chrome** | Settings → Autofill and passwords → Google VaultForge → Settings → **Export passwords** |
 | **Edge** | Settings → Profiles → Passwords → ⋯ → **Export passwords** |
 | **Opera / Opera GX / Brave** | Settings → search "passwords" → ⋯ → **Export passwords** |
 | **Firefox** | Menu → Passwords → ⋯ → **Export passwords** |
@@ -152,8 +152,8 @@ The app can show the rotating 6-digit codes that an authenticator app normally s
 The extension fills and saves logins in **Opera GX, Brave, Chrome, Edge, Opera** and **Firefox**. The desktop app must be running (it usually is, in the tray).
 
 ### Install (until it's in the browser stores)
-1. From the [latest release](https://github.com/gaaloulv36/password-manager/releases/latest), download `password-manager-extension-chromium-….zip` (or `…-firefox-….zip` for Firefox).
-2. Extract it to a folder you'll **keep**, e.g. `Documents\PasswordManagerExtension`. The browser loads the extension from that folder every time.
+1. From the [latest release](https://github.com/gaaloulv36/vaultforge/releases/latest), download `vaultforge-extension-chromium-….zip` (or `…-firefox-….zip` for Firefox).
+2. Extract it to a folder you'll **keep**, e.g. `Documents\VaultForgeExtension`. The browser loads the extension from that folder every time.
 3. In the browser:
 
 | Browser | Steps |
@@ -164,12 +164,12 @@ The extension fills and saves logins in **Opera GX, Brave, Chrome, Edge, Opera**
 | Edge | `edge://extensions` → **Developer mode** on → **Load unpacked** → pick the folder |
 | Firefox | `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → pick `manifest.json` in the folder. Firefox removes it when it restarts. |
 
-4. Pin it: click the puzzle-piece icon in the toolbar → pin **Password Manager**.
+4. Pin it: click the puzzle-piece icon in the toolbar → pin **VaultForge**.
 
 > Browsers show a warning about developer-mode extensions. That's expected until the extension is published in the stores.
 
 ### Connect the browser (once per browser)
-1. Click the **Password Manager** icon in the browser toolbar → **Connect**.
+1. Click the **VaultForge** icon in the browser toolbar → **Connect**.
 2. The browser shows a **6-digit code**, and a **"Connect a browser"** window opens in the app with a code too.
 3. **If the codes are the same**, click **Approve** in the app. If they differ, or you didn't just click Connect, click **Reject**.
 
@@ -191,8 +191,8 @@ After you sign in somewhere, the extension asks **"Save login for site?"**, or *
 ### What the messages mean
 | Message | What to do |
 |---|---|
-| *Your vault is locked* | Click **Unlock in Password Manager**, then unlock. |
-| *Password Manager isn't running* | Click **Start Password Manager**. |
+| *Your vault is locked* | Click **Unlock in VaultForge**, then unlock. |
+| *VaultForge isn't running* | Click **Start VaultForge**. |
 | *Not connected yet* | Do the **Connect** steps above. |
 | *No saved logins for this site* | Add the site's address to the entry's **Websites**. |
 
@@ -216,7 +216,7 @@ From then on:
 
 ## 10. Check your password health
 
-Click **🛡 Health** in the toolbar.
+Click **Health** in the toolbar.
 
 - The **score** (out of 100) is the share of your logins with no problems.
 - Problems found:
@@ -232,7 +232,7 @@ Click **🛡 Health** in the toolbar.
 ## 11. Backups, restore and export
 
 ### Automatic backups
-Once a day, when you unlock, the app saves an encrypted copy of the vault on this PC, **outside OneDrive**, and keeps the last 14. See them with **Settings → Backup & export → Open backups folder** (`%LOCALAPPDATA%\PasswordManager\Backups`).
+Once a day, when you unlock, the app saves an encrypted copy of the vault on this PC, **outside OneDrive**, and keeps the last 14. See them with **Settings → Backup & export → Open backups folder** (`%LOCALAPPDATA%\Forge Studio\VaultForge\Backups`).
 
 ### Make your own backup
 **Settings → Backup & export → Save a backup…** saves an encrypted copy wherever you like, e.g. a USB stick. Do this now and then: if OneDrive or this PC ever fails, it saves you. A backup opens with the master password you had **when the backup was made**.
@@ -252,14 +252,14 @@ If the file in OneDrive is changed by something else while the vault is open, th
 
 ## 12. Settings reference
 
-Open with **⚙ Settings** in the toolbar. Changes apply and save immediately.
+Open with **Settings** in the toolbar. Changes apply and save immediately.
 
 | Section | Setting | Default |
 |---|---|---|
 | **Locking** | Lock after no keyboard/mouse use | 5 minutes |
 | | Lock when the window is minimised | off |
 | | Keep running in the notification area when closed | on |
-| | Hide Password Manager from screenshots and screen sharing | **on** |
+| | Hide VaultForge from screenshots and screen sharing | **on** |
 | | Clear copied passwords after | 30 seconds |
 | **Windows Hello** | Turn on / off unlock with face, fingerprint or PIN (this PC only) | off |
 | **Change master password** | Current, new and confirm | |
@@ -280,11 +280,11 @@ Open with **⚙ Settings** in the toolbar. Changes apply and save immediately.
 - To check now: **Settings → App & updates → Check for updates**.
 
 ### Uninstall
-**Windows Settings → Apps → Installed apps → Password Manager → Uninstall.**
+**Windows Settings → Apps → Installed apps → VaultForge → Uninstall.**
 This **keeps** your vault file, settings and backups, so reinstalling picks up where you left off. To remove everything, also delete:
 - the vault file (e.g. `OneDrive\Passwords.pmvault`) **only if you're sure** you don't need your passwords anymore,
-- `%APPDATA%\PasswordManager` (settings, connected browsers),
-- `%LOCALAPPDATA%\PasswordManager` (backups, Windows Hello data).
+- `%APPDATA%\Forge Studio\VaultForge` (settings, connected browsers),
+- `%LOCALAPPDATA%\Forge Studio\VaultForge` (backups, Windows Hello data).
 
 ---
 
@@ -292,7 +292,7 @@ This **keeps** your vault file, settings and backups, so reinstalling picks up w
 
 | Shortcut | Where | Action |
 |---|---|---|
-| **Ctrl+Alt+P** | anywhere in Windows | Open Password Manager |
+| **Ctrl+Alt+P** | anywhere in Windows | Open VaultForge |
 | **Ctrl+F** | vault | Search |
 | **Ctrl+N** | vault | New entry |
 | **Ctrl+L** | vault | Lock |
@@ -310,7 +310,7 @@ It can't be recovered or reset. That's what keeps the vault safe. Try passwords 
 **Windows Hello stopped working.**
 This happens after resetting your Windows PIN or changing fingerprints. The app turns Hello off and asks for the master password. Unlock, then **Settings → Windows Hello → Turn on** again.
 
-**The browser says "Password Manager isn't running" although it is.**
+**The browser says "VaultForge isn't running" although it is.**
 Restart the app (tray → **Exit**, then start it from the Start menu); it re-registers its browser connector on every start. Then reload the extension on the browser's extensions page.
 
 **The browser says "Not connected yet" again.**
@@ -320,7 +320,7 @@ The connection was removed (e.g. **Disconnect** in Settings, or the app's data w
 Click the toolbar icon instead, or use **Ctrl+Shift+L**. Check that the entry's **Websites** contains this site's address. For sites that sign in on a different domain (e.g. `login.microsoftonline.com`), add that address too.
 
 **Screenshots still show the app.**
-Check **Settings → Locking → Hide Password Manager from screenshots…** is ticked and **Settings → App & updates** shows version **1.0.2 or newer**. Message boxes and the browser extension aren't covered (they never show passwords).
+Check **Settings → Locking → Hide VaultForge from screenshots…** is ticked and **Settings → App & updates** shows version **1.0.2 or newer**. Message boxes and the browser extension aren't covered (they never show passwords).
 
 **"The vault file on disk was modified…"**
 Something other than the app changed the file in OneDrive. If you didn't expect that, choose **Yes** to replace it with your open vault; the rejected file is kept in `Backups\Damaged`.

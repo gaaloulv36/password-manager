@@ -63,7 +63,7 @@ jobs:
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'password-manager' }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'vaultforge' }}
           signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
           artifact-configuration-slug: app
           github-artifact-id: ${{ steps.upload-app.outputs.artifact-id }}
@@ -84,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: setup-unsigned
-          path: artifacts/installer/PasswordManager-win-Setup.exe
+          path: artifacts/installer/VaultForge-vaultforge-Setup.exe
 
       - name: Sign installer
         if: env.SIGN == 'true'
@@ -92,7 +92,7 @@ jobs:
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'password-manager' }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'vaultforge' }}
           signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
           artifact-configuration-slug: setup
           github-artifact-id: ${{ steps.upload-setup.outputs.artifact-id }}
@@ -121,7 +121,8 @@ jobs:
             --token $env:GH_TOKEN `
             --outputDir artifacts/installer `
             --tag "v$version" `
-            --releaseName "Password Manager $version" `
+            --releaseName "VaultForge $version" `
+            --channel vaultforge `
             --publish
           gh release upload "v$version" (Get-ChildItem artifacts/extension/*.zip).FullName --clobber
           # The release page is the download page: it must link the code signing policy (SignPath Foundation terms).

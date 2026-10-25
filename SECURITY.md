@@ -24,7 +24,7 @@
 | Untrusted file input | Structure, size (64 MiB) and KDF ranges checked before any work. Every entry is authenticated at unlock and before merging. |
 | Sync | Only authenticated changes are merged. Rejected files and conflict copies are set aside, never deleted. |
 | Windows Hello | A TPM-held key signs a random challenge; HKDF of the signature wraps the vault key. Stored only in `%LOCALAPPDATA%`. |
-| Browser link | Named pipe limited to the current user, and only our own `Vault.NativeHost.exe` may connect. ECDH P-256 pairing confirmed with a 6-digit code. Every message is AES-256-GCM with its direction bound in; replays and stale messages are rejected. Pairing keys are protected with DPAPI. |
+| Browser link | Named pipe limited to the current user, and only our own `VaultForge.NativeHost.exe` may connect. ECDH P-256 pairing confirmed with a 6-digit code. Every message is AES-256-GCM with its direction bound in; replays and stale messages are rejected. Pairing keys are protected with DPAPI. |
 | Phishing | The **app** checks every request against the saved site: same host or a subdomain, punycode compared, never HTTPS→HTTP, never a bare TLD. |
 | Filling | Only after a real click (`isTrusted`), only into visible fields, and only if the page is still on the site the login was released for. |
 | Clipboard | Excluded from Win+V history and cloud clipboard; cleared after 30 s. |
@@ -57,9 +57,9 @@ Installed copies update themselves from this repository's **GitHub Releases**. S
 
 Also found during the fixes: with F1 in place, a tampered vault file would have been reported as "Windows Hello stopped working" and Hello turned off. The two cases are now distinguished.
 
-Regression tests: `tests/Vault.Core.Tests/HardeningTests.cs`.
+Regression tests: `tests/VaultForge.Core.Tests/HardeningTests.cs`.
 
-**Limitations of this review:** a single reviewer, code reading plus tests; no fuzzing yet and no independent audit. Before trusting the vault with anything critical, get a second pair of eyes on `Vault.Core/Crypto`, `UnlockedVault.cs` and `Vault.Desktop/Browser`.
+**Limitations of this review:** a single reviewer, code reading plus tests; no fuzzing yet and no independent audit. Before trusting the vault with anything critical, get a second pair of eyes on `VaultForge.Core/Crypto`, `UnlockedVault.cs` and `VaultForge.Desktop/Browser`.
 
 ## Reporting a problem
 
