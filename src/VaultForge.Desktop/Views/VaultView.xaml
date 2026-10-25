@@ -1,0 +1,274 @@
+<UserControl x:Class="VaultForge.Desktop.Views.VaultView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:VaultForge.Desktop.ViewModels"
+             xmlns:views="clr-namespace:VaultForge.Desktop.Views">
+    <UserControl.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewItemCommand}" />
+        <KeyBinding Key="L" Modifiers="Control" Command="{Binding LockCommand}" />
+    </UserControl.InputBindings>
+
+    <UserControl.Resources>
+        <!-- Add / edit form -->
+        <DataTemplate DataType="{x:Type vm:ItemEditorViewModel}">
+            <Border Style="{StaticResource Card}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Heading}" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                        <TextBlock Text="Title *" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="TitleInput" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Username or email" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Password" Style="{StaticResource FieldLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <PasswordBox views:PasswordBoxBinding.Password="{Binding Password}" AutomationProperties.Name="Password"
+                                         Visibility="{Binding IsPasswordRevealed, Converter={StaticResource InverseBoolToVisibility}}" />
+                            <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}"
+                                     AutomationProperties.Name="Password (visible)"
+                                     Visibility="{Binding IsPasswordRevealed, Converter={StaticResource BoolToVisibility}}" />
+                            <Button Grid.Column="1" Content="👁" Command="{Binding ToggleRevealCommand}" AutomationProperties.Name="Show password"
+                                    ToolTip="Show / hide" Margin="8,0,0,0" />
+                            <Button Grid.Column="2" Content="Generate…" Command="{Binding GenerateCommand}" Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Websites (one per line)" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding Urls, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                                 MinHeight="60" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" />
+                        <CheckBox IsChecked="{Binding MatchExactHost}" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="Only on these exact websites — not on their subdomains (e.g. a google.com login won't be offered on sites.google.com)" />
+                        </CheckBox>
+
+                        <TextBlock Text="2FA secret (optional) — the setup key or otpauth:// link" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding TotpSecret, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" />
+
+                        <TextBlock Text="Notes" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                                 MinHeight="80" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+
+                        <TextBlock Text="{Binding Error}" Style="{StaticResource ErrorText}"
+                                   Visibility="{Binding Error, Converter={StaticResource VisibleWhenSet}}" />
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                            <Button Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" Margin="0,0,8,0" Padding="16,6" />
+                            <Button Content="Save" Command="{Binding SaveCommand}" Style="{StaticResource AccentButtonStyle}" Padding="16,6" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <DockPanel Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="＋ New entry" Command="{Binding NewItemCommand}" Style="{StaticResource AccentButtonStyle}"
+                        ToolTip="Ctrl+N" Margin="0,0,8,0" />
+                <Button Content="Generator" Command="{Binding OpenGeneratorCommand}" Margin="0,0,8,0" />
+                <Button Content="Import…" Command="{Binding ImportCommand}" Margin="0,0,8,0" />
+                <Button Content="🛡 Health" Command="{Binding OpenHealthCommand}" Margin="0,0,8,0" ToolTip="Weak, reused, old and breached passwords" />
+                <Button Content="⚙ Settings" Command="{Binding OpenSettingsCommand}" Margin="0,0,8,0" />
+                <Button Content="🔒 Lock" Command="{Binding LockCommand}" ToolTip="Ctrl+L" />
+            </StackPanel>
+            <TextBlock Text="{Binding VaultName}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" />
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Search + list -->
+            <DockPanel IsEnabled="{Binding IsEditing, Converter={StaticResource InverseBool}}">
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                    <TextBox x:Name="SearchInput" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Search" />
+                    <TextBlock Text="Search  (Ctrl+F)" IsHitTestVisible="False" Opacity="0.5" Margin="12,0,0,0" VerticalAlignment="Center"
+                               Visibility="{Binding SearchText, Converter={StaticResource VisibleWhenNull}}" />
+                </Grid>
+                <Grid>
+                    <ListBox ItemsSource="{Binding ItemsView}" SelectedItem="{Binding SelectedItem}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,2">
+                                    <TextBlock Text="{Binding Title}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Username}" Style="{StaticResource CaptionTextBlockStyle}"
+                                               Opacity="0.7" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Text="Your vault is empty.&#x0a;Click “New entry” to add your first login,&#x0a;or “Import…” to bring in passwords from another app."
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}"
+                               TextAlignment="Center" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Margin="16" />
+                </Grid>
+            </DockPanel>
+
+            <!-- Editor -->
+            <ContentControl Grid.Column="2" Content="{Binding Editor}" Focusable="False"
+                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Nothing selected -->
+            <TextBlock Grid.Column="2" Text="Select an entry to see its details." Opacity="0.6"
+                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasSelection}" Value="False" />
+                                    <Condition Binding="{Binding IsEditing}" Value="False" />
+                                    <Condition Binding="{Binding IsEmpty}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <!-- Details -->
+            <Border Grid.Column="2" VerticalAlignment="Top">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource Card}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasSelection}" Value="True" />
+                                    <Condition Binding="{Binding IsEditing}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <!-- Long entries (notes, history) scroll inside the card instead of being cut off. -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,-12,0" Padding="0,0,12,0">
+                <StackPanel>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                            <Button Content="Edit" Command="{Binding EditItemCommand}" Margin="0,0,8,0" />
+                            <Button Content="Delete" Command="{Binding DeleteItemCommand}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding SelectedItem.Title}" Style="{StaticResource TitleTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+
+                    <!-- Username -->
+                    <StackPanel Visibility="{Binding SelectedItem.Username, Converter={StaticResource VisibleWhenSet}}">
+                        <TextBlock Text="Username" Style="{StaticResource FieldLabel}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Copy" Command="{Binding CopyUsernameCommand}" />
+                            <TextBlock Text="{Binding SelectedItem.Username}" VerticalAlignment="Center" FontSize="15"
+                                       TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </StackPanel>
+
+                    <!-- Password -->
+                    <StackPanel Visibility="{Binding SelectedItem.Password, Converter={StaticResource VisibleWhenSet}}">
+                        <TextBlock Text="Password" Style="{StaticResource FieldLabel}" />
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="👁" AutomationProperties.Name="Show password" Command="{Binding ToggleRevealCommand}" ToolTip="Show / hide" Margin="0,0,8,0" />
+                                <Button Content="Copy" Command="{Binding CopyPasswordCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding MaskedPassword}" FontFamily="{StaticResource MonoFont}" FontSize="15"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </StackPanel>
+
+                    <!-- 2FA code -->
+                    <StackPanel Visibility="{Binding TotpCode, Converter={StaticResource VisibleWhenSet}}">
+                        <TextBlock Text="2FA code" Style="{StaticResource FieldLabel}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Copy" Command="{Binding CopyTotpCommand}" />
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TotpCode}" FontFamily="{StaticResource MonoFont}" FontSize="20" />
+                                <TextBlock Text="{Binding TotpSecondsRemaining, StringFormat={}{0} s}" Opacity="0.6"
+                                           VerticalAlignment="Center" Margin="12,0,0,0" />
+                            </StackPanel>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <!-- Websites -->
+                    <StackPanel Visibility="{Binding SelectedItem.Urls.Count, Converter={StaticResource VisibleWhenSet}}">
+                        <TextBlock Text="Websites" Style="{StaticResource FieldLabel}" />
+                        <ItemsControl ItemsSource="{Binding SelectedItem.Urls}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Margin="0,2">
+                                        <Hyperlink Command="{Binding DataContext.OpenUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   CommandParameter="{Binding}">
+                                            <Run Text="{Binding Mode=OneWay}" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="Only offered on these exact websites, not their subdomains" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.65" Margin="0,2,0,0"
+                                   Visibility="{Binding SelectedItem.MatchExactHost, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+
+                    <!-- Previous passwords -->
+                    <Expander Margin="0,14,0,0" Visibility="{Binding SelectedItem.PasswordHistory.Count, Converter={StaticResource VisibleWhenSet}}">
+                        <Expander.Header>
+                            <TextBlock Text="{Binding SelectedItem.PasswordHistory.Count, StringFormat=Previous passwords ({0})}" />
+                        </Expander.Header>
+                        <ItemsControl ItemsSource="{Binding SelectedItem.PasswordHistory}" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,3">
+                                        <Button DockPanel.Dock="Right" Content="Copy" AutomationProperties.Name="Copy previous password"
+                                                Command="{Binding DataContext.CopyPreviousPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                        <TextBlock VerticalAlignment="Center" Opacity="0.8"
+                                                   Text="{Binding ReplacedAt, Converter={StaticResource LocalTime}, StringFormat=••••••••   replaced {0:d}}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+
+                    <!-- Notes -->
+                    <StackPanel Visibility="{Binding SelectedItem.Notes, Converter={StaticResource VisibleWhenSet}}">
+                        <TextBlock Text="Notes" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding SelectedItem.Notes, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap"
+                                 MaxHeight="200" VerticalScrollBarVisibility="Auto" />
+                    </StackPanel>
+
+                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.55" Margin="0,20,0,0"
+                               Text="{Binding LastModified, StringFormat=Last modified {0}}" />
+                </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0"
+                   Visibility="{Binding StatusMessage, Converter={StaticResource VisibleWhenSet}}" />
+    </Grid>
+</UserControl>

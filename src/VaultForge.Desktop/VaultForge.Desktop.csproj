@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\VaultForge.Core\VaultForge.Core.csproj" />
+    <!-- Not used in code: built alongside so VaultForge.NativeHost.exe ships next to the app. -->
+    <ProjectReference Include="..\VaultForge.NativeHost\VaultForge.NativeHost.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Velopack" Version="1.2.161" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Custom Main: Velopack's install/update hooks must run before WPF starts. -->
+    <StartupObject>VaultForge.Desktop.Program</StartupObject>
+    <!-- Windows 10 SDK projections: Windows Hello (KeyCredentialManager). -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- Only for NotifyIcon (tray icon); WPF has no equivalent. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- VaultForge.exe, like ThermoForge.exe: product names follow the Forge Studio naming rule. -->
+    <AssemblyName>VaultForge</AssemblyName>
+    <RootNamespace>VaultForge.Desktop</RootNamespace>
+    <ApplicationIcon>Assets\VaultForge.ico</ApplicationIcon>
+    <AssemblyTitle>VaultForge</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep WinForms/Drawing names out of global scope so they don't clash with WPF types (Application, Clipboard, …). -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\VaultForge.ico" />
+    <Resource Include="Assets\VaultForge.png" />
+    <!-- Forge Studio brand fonts (SIL Open Font License, see Assets/Fonts/*-OFL.txt). -->
+    <Resource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,23 @@
+<Window x:Class="VaultForge.Desktop.Views.PairingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="pack://application:,,,/VaultForge;component/Assets/VaultForge.ico"
+        Title="Connect a browser"
+        Width="440" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="True">
+    <StackPanel Margin="28">
+        <TextBlock x:Name="Heading" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+        <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" Opacity="0.85"
+                   Text="Only approve if the browser shows exactly the same code. If you didn't just click “Connect” in the extension, reject." />
+
+        <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" CornerRadius="8" Padding="16" Margin="0,20,0,0">
+            <TextBlock x:Name="CodeText" FontFamily="{StaticResource MonoFont}" FontSize="36" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" />
+        </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+            <Button Content="Reject" Click="OnReject" IsCancel="True" Margin="0,0,8,0" Padding="16,6" />
+            <Button Content="Approve" Click="OnApprove" Style="{StaticResource AccentButtonStyle}" Padding="16,6" />
+        </StackPanel>
+    </StackPanel>
+</Window>

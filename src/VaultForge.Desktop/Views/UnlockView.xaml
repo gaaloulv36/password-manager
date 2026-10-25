@@ -1,0 +1,44 @@
+<UserControl x:Class="VaultForge.Desktop.Views.UnlockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Border Style="{StaticResource Card}" Width="420" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="🔒" FontSize="40" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding VaultName}" Style="{StaticResource TitleTextBlockStyle}"
+                           HorizontalAlignment="Center" Margin="0,8,0,2" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding VaultPath}" ToolTip="{Binding VaultPath}" Style="{StaticResource CaptionTextBlockStyle}"
+                           HorizontalAlignment="Center" Opacity="0.6" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+
+                <StackPanel Visibility="{Binding CanUseHello, Converter={StaticResource BoolToVisibility}}" Margin="0,24,0,0">
+                    <Button x:Name="HelloButton" Command="{Binding UnlockWithHelloCommand}" Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch" Padding="12,8" Content="Unlock with Windows Hello" />
+                    <TextBlock Text="or use your master password" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.6"
+                               HorizontalAlignment="Center" Margin="0,12,0,0" />
+                </StackPanel>
+
+                <TextBlock Text="Master password" Style="{StaticResource FieldLabel}" Margin="0,16,0,4" />
+                <PasswordBox x:Name="PasswordInput" PasswordChanged="OnPasswordChanged"
+                             IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" />
+
+                <TextBlock Text="{Binding Error}" Style="{StaticResource ErrorText}"
+                           Visibility="{Binding Error, Converter={StaticResource VisibleWhenSet}}" />
+                <Button Content="Restore from a backup…" Command="{Binding RestoreFromBackupCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"
+                        Visibility="{Binding IsFileDamaged, Converter={StaticResource BoolToVisibility}}" />
+
+                <Button Command="{Binding UnlockCommand}" AutomationProperties.Name="Unlock" IsDefault="True"
+                        HorizontalAlignment="Stretch" Padding="12,8" Margin="0,16,0,0">
+                    <Grid>
+                        <TextBlock Text="Unlock" Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <TextBlock Text="Unlocking…" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Button>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <Button Content="Open another vault" Command="{Binding OpenOtherVaultCommand}" Margin="0,0,8,0" />
+                    <Button Content="Create new vault" Command="{Binding CreateVaultCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

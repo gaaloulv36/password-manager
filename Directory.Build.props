@@ -2,9 +2,10 @@
   <PropertyGroup>
     <!-- Overridden by the release workflow from the git tag (v1.2.3 → 1.2.3). -->
     <Version>0.9.0</Version>
-    <Authors>gaaloulv36</Authors>
-    <Product>Password Manager</Product>
-    <Copyright>Copyright (c) 2026 gaaloulv36</Copyright>
+    <Authors>Forge Studio</Authors>
+    <Company>Forge Studio</Company>
+    <Product>VaultForge</Product>
+    <Copyright>© 2026 Forge Studio</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

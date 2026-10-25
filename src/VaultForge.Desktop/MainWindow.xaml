@@ -1,0 +1,25 @@
+<Window x:Class="VaultForge.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="pack://application:,,,/VaultForge;component/Assets/VaultForge.ico"
+        Title="Password Manager"
+        AutomationProperties.Name="Password Manager"
+        Width="1040" Height="680" MinWidth="760" MinHeight="520"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <!-- Update ready -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource AccentFillColorDefaultBrush}" Padding="16,8"
+                Visibility="{Binding UpdateReadyVersion, Converter={StaticResource VisibleWhenSet}}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Restart to update" Command="{Binding RestartToUpdateCommand}" Margin="0,0,8,0" Padding="12,4" />
+                    <Button Content="Later" Command="{Binding DismissUpdateCommand}" Padding="12,4" />
+                </StackPanel>
+                <TextBlock Text="{Binding UpdateMessage}" VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+
+        <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+    </DockPanel>
+</Window>
