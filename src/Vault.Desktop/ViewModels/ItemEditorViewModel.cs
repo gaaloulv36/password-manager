@@ -84,8 +84,11 @@ public sealed partial class ItemEditorViewModel : ObservableObject
             .Select(u => u.Contains("://", StringComparison.Ordinal) ? u : "https://" + u)
             .ToList();
 
+        var password = NullIfBlank(Password);
+        if (password is null && !ConfirmSaveWithoutPassword(urls)) return;
+
         // WithPassword keeps the previous password in the history when it changes.
-        var item = (_original ?? new VaultItem { Title = "" }).WithPassword(NullIfBlank(Password), DateTimeOffset.UtcNow) with
+        var item = (_original ?? new VaultItem { Title = "" }).WithPassword(password, DateTimeOffset.UtcNow) with
         {
             Title = Title.Trim(),
             Username = NullIfBlank(Username.Trim()),
@@ -95,6 +98,21 @@ public sealed partial class ItemEditorViewModel : ObservableObject
             TotpSecret = NullIfBlank(totp),
         };
         _onSave(item);
+    }
+
+    /// <summary>
+    /// A login saved without a password is almost always a mistake (and once was a bug), so ask.
+    /// Notes-only entries (no username, no website) don't need a password.
+    /// </summary>
+    private bool ConfirmSaveWithoutPassword(List<string> urls)
+    {
+        if (_original?.Password is not null)
+            return _dialogs.Confirm(
+                "You removed this entry's password. Save it without a password?\n\nThe old password is kept under \"Previous passwords\".",
+                "No password");
+
+        var looksLikeLogin = !string.IsNullOrWhiteSpace(Username) || urls.Count > 0;
+        return !looksLikeLogin || _dialogs.Confirm("This login has no password. Save it anyway?", "No password");
     }
 
     [RelayCommand]

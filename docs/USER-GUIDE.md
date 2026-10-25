@@ -332,6 +332,7 @@ Click **Restore from a backup…** ([section 11](#11-backups-restore-and-export)
 Click **More info → Run anyway**. The installer isn't code-signed yet.
 
 **An entry I created has no password.**
+Since 1.0.5 the app asks before saving a login without a password.
 Versions 1.0.0–1.0.2 had a bug where a password *typed* into a *new* entry wasn't saved. Update to 1.0.3 or newer, then **Edit** the entry and type the password again.
 
 ---
