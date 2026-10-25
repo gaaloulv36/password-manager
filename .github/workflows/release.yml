@@ -35,7 +35,7 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $version = if ($env:DRY_RUN -eq 'true') { '0.0.0-dryrun.${{ github.run_number }}' } else { '${{ github.ref_name }}'.TrimStart('v') }
+          $version = if ($env:DRY_RUN -eq 'true') { '0.0.1-dryrun.${{ github.run_number }}' } else { '${{ github.ref_name }}'.TrimStart('v') }
           echo "value=$version" >> $env:GITHUB_OUTPUT
 
       - name: Tests (including fuzz tests)
